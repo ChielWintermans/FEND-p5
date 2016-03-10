@@ -39,7 +39,8 @@ function ViewModel(){
 	        		position: Latlng,
 	            	title:localResult.name,
 	            	map:map,
-	            	id: i
+	            	id: i,
+	            	animation: google.maps.Animation.DROP
 	            });
 	        	marker.setMap(map);	 
 	    		var thisItem={
@@ -57,6 +58,8 @@ function ViewModel(){
 		    			openInfoWindow = infoWindow;
 		    			infowindow.setContent(results[i].name);
         				infowindow.open(map, marker);
+        				marker.setAnimation(google.maps.Animation.BOUNCE);
+  						setTimeout(function(){ marker.setAnimation(null); }, 1400);        				
         			};
     			})(marker, i));
 	    	};
@@ -140,58 +143,14 @@ function ViewModel(){
 	})();
 
 	yelpConnector.fetchDinersFromYelp();
-	self.markIt=function(){
-		var thisLatLng=new google.maps.LatLng(51.445224, 5.460549);
-		var thisMarker=new google.maps.Marker({
-	        position: thisLatLng,
-	        title: 'location x'});
-	    thisMarker.setMap(map);
-	};
-	self.selectThis=function(venue){
-		console.log(venue);
+	// show infoWindow & bounce marker on list click
+	self.selectFromList=function(venue){
+		//console.log(venue);
   		map.panTo(venue.thisLl);
   		thisMarker=venue.marker;
-  		infoWindow.open(map, thisMarker);
-  		//this.marker.setAnimation(google.maps.Animation.BOUNCE);
-  		//setTimeout(this.cancelAnimation, 3000);
-	};
-	self.selectMarkerFromList=function(venue){
-		selectedVenue=venue.name;
-		console.log('selected: '+selectedVenue);
-		for (i = 0; i < model.markers().length; i++) {
-			console.log('checking '+model.markers()[i].name);
-			if (selectedVenue === model.markers()[i].name) {
-				console.log('found it');
-				toggleInfoWindow(i);
-				//infoWindow.open(map, venue.marker);
-				break;
-			};
-		};
-	}.bind(this);
-
-	//Function to the toggle the infowindow of a specific marker
-	function toggleInfoWindow(id) {
-		console.log('id: '+id);
-		var thisMarker=model.markers()[id];
-		console.log(thisMarker);
-		google.maps.event.trigger(thisMarker, 'click', (function(thisMarker, id){
-			return function(){
-				if (openInfoWindow) openInfoWindow.close();
-		    	openInfoWindow = infoWindow;
-		    	infowindow.setContent(results[id].name);
-        		infowindow.open(map, thisMarker);
-			};
-		})(thisMarker, id));
+  		google.maps.event.trigger(thisMarker, 'click', {
+			latLng: thisMarker
+		});
 	};
 };
 ko.applyBindings(new ViewModel());
-
-/*	  			google.maps.event.addListener(marker, 'click', (function(marker, i) {
-	    			return function() {
-		    			if (openInfoWindow) openInfoWindow.close();
-		    			openInfoWindow = infoWindow;
-		    			infowindow.setContent(results[i].name);
-        				infowindow.open(map, marker);
-        			};
-    			})(marker, i));
-*/
