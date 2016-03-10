@@ -31,22 +31,20 @@ function ViewModel(){
 	// build list of venues & set markers
 	fillList=function(){
 	    for(i=0;i<results.length;i++){
-	    	var localResult=results[i];
-	    	//console.log(localResult);
-	    	if(localResult.location.coordinate){
-	    	   	var Latlng = new google.maps.LatLng(localResult.location.coordinate.latitude,localResult.location.coordinate.longitude);
+	    	//console.log(results[i]);
+	    	if(results[i].location.coordinate){
+	    	   	var Latlng = new google.maps.LatLng(results[i].location.coordinate.latitude,results[i].location.coordinate.longitude);
 	        	var marker = new google.maps.Marker({
 	        		position: Latlng,
-	            	title:localResult.name,
+	            	title:results[i].name,
 	            	map:map,
 	            	id: i,
 	            	animation: google.maps.Animation.DROP
 	            });
 	        	marker.setMap(map);	 
 	    		var thisItem={
-	       			name: localResult.name,
-	       			thisLl: new google.maps.LatLng(localResult.location.coordinate.latitude,localResult.location.coordinate.longitude),
-	       			marker: marker
+	       			marker: marker,
+	       			info: results[i]
 	    		};
 	    		model.markers.push(thisItem);
 	    	    var infowindow = new google.maps.InfoWindow({
@@ -146,10 +144,9 @@ function ViewModel(){
 	// show infoWindow & bounce marker on list click
 	self.selectFromList=function(venue){
 		//console.log(venue);
-  		map.panTo(venue.thisLl);
-  		thisMarker=venue.marker;
-  		google.maps.event.trigger(thisMarker, 'click', {
-			latLng: thisMarker
+  		map.panTo(new google.maps.LatLng(venue.info.location.coordinate.latitude,venue.info.location.coordinate.longitude));
+  		google.maps.event.trigger(venue.marker, 'click', {
+			latLng: venue.marker
 		});
 	};
 };

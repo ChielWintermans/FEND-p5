@@ -43,7 +43,7 @@
 	<div class="container">
 		<div id="mapDiv" class="map"></div>
 		<ul data-bind="foreach: model.markers">
-			<li data-bind="text: name, click: $parent.selectFromList">
+			<li data-bind="text: info.name, click: $parent.selectFromList">
 		</ul>
 	</div>
 	<script type="text/html" id="diner-infowindow-template">
