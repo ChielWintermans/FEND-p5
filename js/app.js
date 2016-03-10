@@ -49,6 +49,7 @@ function ViewModel(){
 	  			google.maps.event.addListener(marker, 'click', (function(marker, i) {
 	    			return function() {
 		    			if (openInfoWindow) openInfoWindow.close();
+		    			map.panTo(new google.maps.LatLng(results[i].location.coordinate.latitude,results[i].location.coordinate.longitude));
 		    			openInfoWindow = infoWindow;
 		    			infowindow.setContent(results[i].name);
         				infowindow.open(map, marker);
@@ -122,7 +123,6 @@ function ViewModel(){
 	// show infoWindow & bounce marker on list click
 	self.selectFromList=function(venue){
 		//console.log(venue);
-  		map.panTo(new google.maps.LatLng(venue.info.location.coordinate.latitude,venue.info.location.coordinate.longitude));
   		google.maps.event.trigger(venue.marker, 'click', {
 			latLng: venue.marker
 		});
