@@ -9,13 +9,11 @@ function Model(){
 	self.home=[51.44638,5.45719];
 	//Create an empty array to store a list of map markers
 	self.markers=ko.observableArray([]);
-	self.infoWindows=[];
 };
 var model =new Model();
 
 function ViewModel(){
 	var self = this;
-	var markerBouncing = null;
 	var openInfoWindow = null;
 	// show map
 	initMap=function(){
@@ -33,22 +31,20 @@ function ViewModel(){
 	    for(i=0;i<results.length;i++){
 	    	//console.log(results[i]);
 	    	if(results[i].location.coordinate){
-	    	   	var Latlng = new google.maps.LatLng(results[i].location.coordinate.latitude,results[i].location.coordinate.longitude);
 	        	var marker = new google.maps.Marker({
-	        		position: Latlng,
+	        		position: new google.maps.LatLng(results[i].location.coordinate.latitude,results[i].location.coordinate.longitude),
 	            	title:results[i].name,
 	            	map:map,
 	            	id: i,
 	            	animation: google.maps.Animation.DROP
 	            });
 	        	marker.setMap(map);	 
-	    		var thisItem={
+	    		var venue={
 	       			marker: marker,
 	       			info: results[i]
 	    		};
-	    		model.markers.push(thisItem);
-	    	    var infowindow = new google.maps.InfoWindow({
-    			//	content: localResult.name
+	    		model.markers.push(venue);
+	    	    infowindow = new google.maps.InfoWindow({
   				});
 	  			google.maps.event.addListener(marker, 'click', (function(marker, i) {
 	    			return function() {
@@ -118,28 +114,10 @@ function ViewModel(){
 	      		}
 	   		};
 	    	sendSearchRequest(requestData);
-	  	};
-	  	function fetchDinerDetailsFromYelp(name, address, callback){
-	    	console.log("using yelp");
-	    	var requestData={
-	      		url: 'https://api.yelp.com/v2/search',
-	      		method: 'GET',
-	      		data: {
-	        		callback: "cb",
-	        		//category_filter: "restaurants,cafes,bars,diners",
-	        		term: name,
-	        		location: address,
-	        		radius_filter: 300,
-	        		limit: 1
-	      		}
-	    	};
-	    	sendSearchRequest(requestData, callback);
 	  	}return{
 	    	fetchDinersFromYelp: fetchDinersFromYelp,
-	    	fetchDinerDetailsFromYelp: fetchDinerDetailsFromYelp
 	  	};
 	})();
-
 	yelpConnector.fetchDinersFromYelp();
 	// show infoWindow & bounce marker on list click
 	self.selectFromList=function(venue){
