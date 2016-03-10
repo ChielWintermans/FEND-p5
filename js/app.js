@@ -39,11 +39,7 @@ function ViewModel(){
 	            	animation: google.maps.Animation.DROP
 	            });
 	        	marker.setMap(map);	 
-	    		var venue={
-	       			marker: marker,
-	       			//info: results[i]
-	    		};
-	    		model.markers.push(venue);
+	    		model.markers.push(marker);
 	    	    infowindow = new google.maps.InfoWindow({
   				});
 	  			google.maps.event.addListener(marker, 'click', (function(marker, i) {
@@ -120,11 +116,11 @@ function ViewModel(){
 	  	};
 	})();
 	yelpConnector.fetchDinersFromYelp();
-	// show infoWindow & bounce marker on list click
+	// trigger a marker click event on list click
 	self.selectFromList=function(venue){
-		console.log(venue);
-  		google.maps.event.trigger(venue.marker, 'click', {
-			latLng: venue.marker
+		//console.log(venue);
+  		google.maps.event.trigger(venue, 'click', {
+			latLng: venue
 		});
 	};
 };
