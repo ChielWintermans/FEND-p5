@@ -41,7 +41,7 @@ function ViewModel(){
 	        	marker.setMap(map);	 
 	    		var venue={
 	       			marker: marker,
-	       			info: results[i]
+	       			//info: results[i]
 	    		};
 	    		model.markers.push(venue);
 	    	    infowindow = new google.maps.InfoWindow({
@@ -122,7 +122,7 @@ function ViewModel(){
 	yelpConnector.fetchDinersFromYelp();
 	// show infoWindow & bounce marker on list click
 	self.selectFromList=function(venue){
-		//console.log(venue);
+		console.log(venue);
   		google.maps.event.trigger(venue.marker, 'click', {
 			latLng: venue.marker
 		});
