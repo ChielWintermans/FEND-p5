@@ -19,23 +19,54 @@
 		display: -webkit-flex;
 		flex-wrap: wrap;
 		width: 100%;
-		height:780px;
+		/*height:780px;*/
 		/*background-color: red;*/
 	}
-	.listContainer{
-		width: 150px;
-		/*background-color: grey;*/
-	}
-    #adminholder{
-    	width: 100%;
-    }
-    .label{
-    	width: 150px;
-    }
     #mapDiv{
     	width: 80%;
     	height: 500px;
     	background-color: blue;
+    }
+    #cntt-container{
+        display: none;
+    }
+    #info-cntt-holder{
+        display: flex;
+        display: -webkit-flex;
+        flex-wrap: wrap;
+        width: 350px;
+        background-color: yellow;
+    }
+    #cntt-header{
+        width: 100%;
+        text-align: center;
+    }
+    
+    #cntt-body{
+        width: 100%;
+    }
+    #cntt-left{
+        width: 100px;
+        height: 100px;
+        z-index: 2;
+        float: left;
+        background-color: red;
+    }
+    #cntt-right{
+        height: 100px;
+        width: 250px;
+        z-index: -1;
+        float: right;
+        background-color: grey;
+    }
+    #cntt-review{
+        width: 100%;
+        background-color: orange;
+    }
+   .scrollFix {
+        line-height: 1.35;
+        overflow: hidden;
+        /*white-space: nowrap;*/
     }
     </style>
 </head>
@@ -43,23 +74,34 @@
 	<div class="container">
 		<div id="mapDiv" class="map"></div>
 		<ul data-bind="foreach: model.markers">
-			<li data-bind="text: title, click: $parent.selectFromList">
+			<li data-bind="text: title, click: selectFromList">
 		</ul>
 	</div>
-	<script type="text/html" id="diner-infowindow-template">
-    	<div class="panel panel-primary panel-infowindow">
-        	<div class="panel-heading">
-          		<h3 class="panel-title" data-bind="text: name">Loading..</h3>
-        	</div>
-        	<div class="panel-body">
-          		<p>Address: <span data-bind="text: vicinity"></span></p>
-          		<div data-bind='component: {
-            		name: "yelp-data",
-            		params: { name: name, address: vicinity }}'>
-            	</div>
-        	</div>
-      	</div>
-    </script>
+    <!--<div data-bind="click: openIt">click here</div>
+    <div id="test-cntt-holder" data-bind="visible: windowOpen, with: currentVenue">
+        <h2 data-bind="text: name"></h2>
+        <h3 data-bind="text: phone"></h3>
+    </div>-->
+    <div id="cntt-container">
+        <div id="info-cntt-holder" class="scrollFix" data-bind="with: currentVenue">
+            <div id="cntt-header"><h2 data-bind="text: name"></h2>
+            </div>
+            <div id="cntt-body">
+                <div id="cntt-left">
+                    <img data-bind="attr: {src: img}">
+                </div>
+                <div id="cntt-right">
+                    Phone: <span data-bind="text: phone"></span><br>
+                    Address: <span data-bind="text: address"></span><br>
+                    reviews: <span data-bind="text: reviewCount"></span> rating: <span data-bind="text: rating"></span>
+                </div>
+                <div id="cntt-review">
+                    <a data-bind="attr: {href:url}"><span data-bind="text: snippet"></span></a>
+                </div>
+            </div>
+        </div>
+    </div>
+
 	<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
 	<script src="lib/knockout-3.2.0.js"></script>
 	<script src="http://maps.google.com/maps/api/js"></script>

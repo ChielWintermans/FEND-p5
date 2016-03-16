@@ -2,6 +2,17 @@
 var map;
 var infoWindow;
 var results=[];
+var venue=function(data){
+	//this.isVis=ko.observable(true);
+	this.name=ko.observable(data.name);
+	this.phone=ko.observable(data.phone);
+	this.address=ko.observable(data.location.display_address[0]);
+	this.rating=ko.observable(data.rating);
+	this.img=ko.observable(data.image_url);
+	this.reviewCount=ko.observable(data.review_count);
+	this.snippet=ko.observable(data.snippet_text);
+	this.url=ko.observable(data.url);
+};
 
 function Model(){
 	var self=this;
@@ -9,12 +20,15 @@ function Model(){
 	self.home=[51.44638,5.45719];
 	//Create an empty array to store a list of map markers
 	self.markers=ko.observableArray([]);
+	self.venueList=ko.observableArray([]);
 };
 var model =new Model();
 
 function ViewModel(){
 	var self = this;
 	var openInfoWindow = null;
+	self.windowOpen=ko.observable(false);
+
 	// show map
 	initMap=function(){
 	   	var homeLl=new google.maps.LatLng(model.home[0],model.home[1]);
@@ -24,10 +38,14 @@ function ViewModel(){
 	   		mapTypeId: google.maps.MapTypeId.ROADMAP
 		};
 		map=new google.maps.Map(document.getElementById('mapDiv'),mapOptions);
+		//google.maps.event.addListener(infoWindow, 'closeclick', closeInfoWindow);
 	};
 	initMap();
 	// build list of venues & set markers
 	fillList=function(){
+		results.forEach(function(venueItem){
+			model.venueList.push(new venue(venueItem));
+		});
 	    for(i=0;i<results.length;i++){
 	    	//console.log(results[i]);
 	    	if(results[i].location.coordinate){
@@ -42,17 +60,32 @@ function ViewModel(){
 	    		model.markers.push(marker);
 	    	    infowindow = new google.maps.InfoWindow({
   				});
+
 	  			google.maps.event.addListener(marker, 'click', (function(marker, i) {
 	    			return function() {
+
 		    			if (openInfoWindow) openInfoWindow.close();
-		    			map.panTo(new google.maps.LatLng(results[i].location.coordinate.latitude,results[i].location.coordinate.longitude));
+		    			//map.panTo(new google.maps.LatLng(results[i].location.coordinate.latitude,results[i].location.coordinate.longitude));
 		    			openInfoWindow = infoWindow;
-		    			infowindow.setContent(results[i].name);
+		    			thisName=marker.title;
+ 						for(i=0;i<model.venueList().length;i++){
+ 							thatName=model.venueList()[i].name();
+ 							if(thisName===thatName){
+ 							//console.log('got it');
+ 								self.currentVenue(model.venueList()[i]);
+ 								break;
+ 							};
+ 						};
+		    			windowOpen=true;
+		    			//infowindow.setContent('<div id="infoHolder"><h2>'+results[i].name+'</h2><div id="infoImg"><img src='+results[i].image_url+'></div><div id="infoTxt">'+results[i].display_phone+'<br>'+results[i].location.address[0]+'<br><p>'+results[i].snippet_text+'</p></div></div>');
+		    			infowindow.setContent(document.getElementById('info-cntt-holder'));
         				infowindow.open(map, marker);
         				marker.setAnimation(google.maps.Animation.BOUNCE);
-  						setTimeout(function(){ marker.setAnimation(null); }, 1400);        				
+  						setTimeout(function(){ marker.setAnimation(null); }, 1400);   				
         			};
     			})(marker, i));
+				// add listener for infowindow close click so ko bindings stay preserved.
+				google.maps.event.addListener(infowindow, 'closeclick', closeInfoWindow);
 	    	};
 	    };
 	};
@@ -117,11 +150,15 @@ function ViewModel(){
 	})();
 	yelpConnector.fetchDinersFromYelp();
 	// trigger a marker click event on list click
-	self.selectFromList=function(venue){
-		//console.log(venue);
+ 	selectFromList=function(venue){
   		google.maps.event.trigger(venue, 'click', {
 			latLng: venue
 		});
 	};
+	//function to preserve ko bindings
+	function closeInfoWindow() {
+    	document.getElementById('cntt-container').appendChild(infowindow.getContent());
+	};
+	this.currentVenue=ko.observable(model.venueList()[0]);
 };
 ko.applyBindings(new ViewModel());
