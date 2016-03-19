@@ -26,9 +26,7 @@ var model =new Model();
 
 function ViewModel(){
 	var self = this;
-	var openInfoWindow = null;
 	self.windowOpen=ko.observable(false);
-
 	// show map
 	initMap=function(){
 	   	var homeLl=new google.maps.LatLng(model.home[0],model.home[1]);
@@ -38,7 +36,16 @@ function ViewModel(){
 	   		mapTypeId: google.maps.MapTypeId.ROADMAP
 		};
 		map=new google.maps.Map(document.getElementById('mapDiv'),mapOptions);
-		//google.maps.event.addListener(infoWindow, 'closeclick', closeInfoWindow);
+		// set visibility for google's default POI's to 'off'
+		map.set('styles', [
+  			{
+  				featureType: 'poi',
+  				elementType: 'all',
+  				stylers: [
+    				{ visibility: 'off' }
+  				]
+  			}
+		]);
 	};
 	initMap();
 	// build list of venues & set markers
@@ -54,32 +61,28 @@ function ViewModel(){
 	            	title:results[i].name,
 	            	map:map,
 	            	id: i,
+	            	icon: 'img/restaurants.png',
 	            	animation: google.maps.Animation.DROP
 	            });
 	        	marker.setMap(map);	 
 	    		model.markers.push(marker);
 	    	    infowindow = new google.maps.InfoWindow({
   				});
-
 	  			google.maps.event.addListener(marker, 'click', (function(marker, i) {
 	    			return function() {
-
-		    			if (openInfoWindow) openInfoWindow.close();
 		    			//map.panTo(new google.maps.LatLng(results[i].location.coordinate.latitude,results[i].location.coordinate.longitude));
-		    			openInfoWindow = infoWindow;
 		    			thisName=marker.title;
  						for(i=0;i<model.venueList().length;i++){
  							thatName=model.venueList()[i].name();
  							if(thisName===thatName){
- 							//console.log('got it');
  								self.currentVenue(model.venueList()[i]);
  								break;
  							};
  						};
 		    			windowOpen=true;
-		    			//infowindow.setContent('<div id="infoHolder"><h2>'+results[i].name+'</h2><div id="infoImg"><img src='+results[i].image_url+'></div><div id="infoTxt">'+results[i].display_phone+'<br>'+results[i].location.address[0]+'<br><p>'+results[i].snippet_text+'</p></div></div>');
 		    			infowindow.setContent(document.getElementById('info-cntt-holder'));
         				infowindow.open(map, marker);
+        				// animate the marker on click
         				marker.setAnimation(google.maps.Animation.BOUNCE);
   						setTimeout(function(){ marker.setAnimation(null); }, 1400);   				
         			};
@@ -89,6 +92,7 @@ function ViewModel(){
 	    	};
 	    };
 	};
+
 	// get yelp data
 	var yelpConnector = (function() {
 		var oauth = OAuth({
@@ -149,16 +153,19 @@ function ViewModel(){
 	  	};
 	})();
 	yelpConnector.fetchDinersFromYelp();
+
 	// trigger a marker click event on list click
  	selectFromList=function(venue){
   		google.maps.event.trigger(venue, 'click', {
 			latLng: venue
 		});
 	};
-	//function to preserve ko bindings
+
+	// function to preserve ko bindings to infowindow DOM element
 	function closeInfoWindow() {
+		self.windowOpen=false;
     	document.getElementById('cntt-container').appendChild(infowindow.getContent());
 	};
-	this.currentVenue=ko.observable(model.venueList()[0]);
+	self.currentVenue=ko.observable(model.venueList()[0]);
 };
 ko.applyBindings(new ViewModel());
