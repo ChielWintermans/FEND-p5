@@ -3,7 +3,6 @@ var map;
 var infoWindow;
 var results=[];
 var venue=function(data){
-	//this.isVis=ko.observable(true);
 	this.name=ko.observable(data.name);
 	this.phone=ko.observable(data.phone);
 	this.address=ko.observable(data.location.display_address[0]);
@@ -17,7 +16,7 @@ var venue=function(data){
 function Model(){
 	var self=this;
 	//Set the home location coordinates to initialize the map here
-	self.home=[51.44638,5.45719];
+	self.home=[51.447581,5.457728];
 	//Create an empty array to store a list of map markers
 	self.markers=ko.observableArray([]);
 	self.venueList=ko.observableArray([]);
@@ -55,13 +54,22 @@ function ViewModel(){
 		});
 	    for(i=0;i<results.length;i++){
 	    	//console.log(results[i]);
-	    	if(results[i].location.coordinate){
+	    	if(results[i].location.coordinate && results[i].location.geo_accuracy>7){
+	    		var thisCategory=String(results[i].categories[0][0]);
+	    		//console.log(thisCategory);
+	    		var thisIcon;
+	    		if((thisCategory.search(/activ/i)>-1)||(thisCategory.search(/gym/i)>-1)){
+	    			console.log('found active');
+	    			thisIcon='img/play-schools.png';
+	    		}else{
+	    			thisIcon='img/restaurants.png';
+	    		};
 	        	var marker = new google.maps.Marker({
 	        		position: new google.maps.LatLng(results[i].location.coordinate.latitude,results[i].location.coordinate.longitude),
 	            	title:results[i].name,
 	            	map:map,
 	            	id: i,
-	            	icon: 'img/restaurants.png',
+	            	icon: thisIcon,
 	            	animation: google.maps.Animation.DROP
 	            });
 	        	marker.setMap(map);	 
@@ -142,9 +150,9 @@ function ViewModel(){
 	      		method: 'GET',
 	      		data: {
 	        		callback: "cb",
-	        		category_filter: "restaurants,cafes,bars,diners",
-	        		radius_filter: 300,
-	        		ll: "51.44638, 5.45719"
+	        		category_filter: "restaurants,cafes,bars,diners,food,active",
+	        		radius_filter: 550,
+	        		ll: "51.447581, 5.457728"
 	      		}
 	   		};
 	    	sendSearchRequest(requestData);
