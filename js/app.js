@@ -4,6 +4,7 @@ var infoWindow;
 var results=[];
 var FsResults=[];
 var venue=function(data){
+	this.Id=data.Id;
 	this.name=ko.observable(data.name);
 	this.phone=ko.observable(data.phone);
 	this.address=ko.observable(data.location.display_address[0]);
@@ -53,11 +54,12 @@ function ViewModel(){
 
 	// build list of Yelp venues & set markers
 	fillList=function(){
-		results.forEach(function(venueItem){
+		/*results.forEach(function(venueItem){
 			model.venueList.push(new venue(venueItem));
-		});
+		});*/
 	    for(i=0;i<results.length;i++){
 	    	//console.log(results[i]);
+	    	console.log('i: '+i);
 	    	if(results[i].location.coordinate && results[i].location.geo_accuracy>7){
 	    		// set the marker icon according to category
 	    		var thisIcon;
@@ -68,6 +70,19 @@ function ViewModel(){
 	    			thisIcon='img/restaurants.png';
 	    		};
 	    		// set the marker
+	    		var venueData={
+	    			Id: i,
+					name: results[i].name,
+					phone: results[i].phone,
+					location: results[i].location,
+					image_url: results[i].image_url,
+					rating: results[i].rating,
+					review_count: results[i].review_count,
+					snippet_text: results[i].snippet_text,
+					url: results[i].url
+	    		};
+	    		model.venueList.push(new venue(venueData));
+	    		console.log(venueData.image_url);
 	        	var marker = new google.maps.Marker({
 	        		position: new google.maps.LatLng(results[i].location.coordinate.latitude,results[i].location.coordinate.longitude),
 	            	title:results[i].name,
@@ -83,16 +98,17 @@ function ViewModel(){
 	  			google.maps.event.addListener(marker, 'click', (function(marker, i) {
 	    			return function() {
 		    			//map.panTo(new google.maps.LatLng(results[i].location.coordinate.latitude,results[i].location.coordinate.longitude));
-		    			thisName=marker.title;
-		    			function checkNames(name){
-         					var foundName=model.venueList().some(function(details){
-         						return details.name()===name;
+		    			//thisId=marker.id;
+		    			function checkId(id){
+         					var foundId=model.venueList().some(function(details){
+         						return details.Id===id;
            					});
-         					if(foundName){
+         					if(foundId){
+         						console.log('found: '+model.venueList()[i].name()+' id: '+model.venueList()[i].Id);
          						self.currentVenue(model.venueList()[i]);
          					};
          				};
-         				checkNames(thisName);
+         				checkId(i);
 
 		    			windowOpen=true;
 		    			infowindow.setContent(document.getElementById('info-cntt-holder'));
@@ -110,7 +126,8 @@ function ViewModel(){
 	};
 	// build list of Foursquare venues & set markers 
 	fillListMore=function(){
-		var currentI=model.markers().length-1;
+		var lastI=model.venueList().length-1;
+		var currentI=model.venueList()[lastI].Id;
 		var thisIcon='img/museums.png';
 		for(i=currentI;(i-currentI)<FsResults.length;i++){
 			newI=i-currentI;
@@ -123,6 +140,7 @@ function ViewModel(){
          		});
          		if(!foundMarker){
          			var venueData={
+         				Id: i,
 						name: FsResults[newI].venue.name,
 						phone: FsResults[newI].venue.contact.phone,
 						location: {display_address: [FsResults[newI].venue.location.address]},
@@ -144,18 +162,19 @@ function ViewModel(){
   					});
   					google.maps.event.addListener(marker, 'click', (function(marker, i){
 	    				return function(){
-			    			thisName=marker.title;
+			    			//thisId=marker.id;
 			    			//console.log('fs i: '+i);
-							function checkNames(name){
-	         					var foundName=model.venueList().some(function(details){
-	         						return details.name()===name;
+							function checkId(i){
+	         					var foundId=model.venueList().some(function(details){
+	         						return details.Id===i;
 	           					});
-	         					if(foundName){
+	         					if(foundId){
 	         						//console.log(thisName);
+	         						console.log('found: '+model.venueList()[i].name()+' id: '+model.venueList()[i].Id);
 	         						self.currentVenue(model.venueList()[i]);
 	         					};
 	         				};
-	         				checkNames(thisName);
+	         				checkId(i);
 		   					windowOpen=true;
 		   					infowindow.setContent(document.getElementById('info-cntt-holder'));
         					infowindow.open(map, marker);
@@ -171,18 +190,12 @@ function ViewModel(){
 	        };
 		   	checkMarkers(FsName);
 		};
+		
 		for(i=0;i<model.markers().length;i++){
-			console.log(i+': marker: '+model.markers()[i].title);
-			console.log(i+': venues: '+model.venueList()[i].name());
+			console.log(i+': marker: '+model.markers()[i].title+' id: '+model.markers()[i].id);
+			console.log(i+': venues: '+model.venueList()[i].name()+' id: '+model.venueList()[i].Id);
 		};
-		/*
-		model.venueList().forEach(function(data){
-			//console.log(index);	
-			console.log(data.name());	
-			console.log(data.phone());	
-			console.log(data.address());	
-			console.log(data.img());	
-		});*/
+	/*	*/
 	};
 
 	// get foursquare data
