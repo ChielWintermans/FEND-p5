@@ -48,15 +48,15 @@
     #cntt-left{
         width: 100px;
         height: 100px;
-        z-index: 2;
+        /*z-index: 2;*/
         float: left;
         background-color: red;
     }
     #cntt-right{
         height: 100px;
-        width: 250px;
+        /*width: 250px;
         z-index: -1;
-        float: right;
+        float: right;*/
         background-color: grey;
     }
     #cntt-review{
@@ -81,16 +81,16 @@
             <div id="cntt-header"><h2 data-bind="text: name"></h2>
             </div>
             <div id="cntt-body">
-                <div id="cntt-left">
+                <div id="cntt-left"  data-bind="visible: img">
                     <img data-bind="attr: {src: img}">
                 </div>
                 <div id="cntt-right">
                     Phone: <span data-bind="text: phone"></span><br>
                     Address: <span data-bind="text: address"></span><br>
-                    reviews: <span data-bind="text: reviewCount"></span> rating: <span data-bind="text: rating"></span>
+                    <a data-bind="attr: {href:url}" target="blank">Yelp reviews: <span data-bind="text: reviewCount"></span> rating: <span data-bind="text: rating"></span></a>
                 </div>
                 <div id="cntt-review">
-                    <a data-bind="attr: {href:url}"><span data-bind="text: snippet"></span></a>
+                    <span data-bind="text: snippet"></span>
                 </div>
             </div>
         </div>

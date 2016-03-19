@@ -55,15 +55,15 @@ function ViewModel(){
 	    for(i=0;i<results.length;i++){
 	    	//console.log(results[i]);
 	    	if(results[i].location.coordinate && results[i].location.geo_accuracy>7){
-	    		var thisCategory=String(results[i].categories[0][0]);
-	    		//console.log(thisCategory);
+	    		// set the marker icon according to category
 	    		var thisIcon;
+	    		var thisCategory=String(results[i].categories[0][0]);
 	    		if((thisCategory.search(/activ/i)>-1)||(thisCategory.search(/gym/i)>-1)){
-	    			console.log('found active');
 	    			thisIcon='img/play-schools.png';
 	    		}else{
 	    			thisIcon='img/restaurants.png';
 	    		};
+	    		// set the marker
 	        	var marker = new google.maps.Marker({
 	        		position: new google.maps.LatLng(results[i].location.coordinate.latitude,results[i].location.coordinate.longitude),
 	            	title:results[i].name,
