@@ -96,8 +96,8 @@ function ViewModel(){
 	  			google.maps.event.addListener(marker, 'click', (function(marker, i) {
 	    			return function() {
 		    			//map.panTo(new google.maps.LatLng(results[i].location.coordinate.latitude,results[i].location.coordinate.longitude));
-         				//checkId(i);
-         				checkName(marker);
+         				checkIndex(marker);
+         				//checkName(marker);
 		    			windowOpen=true;
 		    			infowindow.setContent(document.getElementById('info-cntt-holder'));
         				infowindow.open(map, marker);
@@ -150,8 +150,8 @@ function ViewModel(){
   					});
   					google.maps.event.addListener(marker, 'click', (function(marker, i){
 	    				return function(){
-	         				//checkId(i);
-	         				checkName(marker);
+	         				checkIndex(marker);
+	         				//checkName(marker);
 		   					windowOpen=true;
 		   					infowindow.setContent(document.getElementById('info-cntt-holder'));
         					infowindow.open(map, marker);
@@ -275,29 +275,37 @@ function ViewModel(){
 	})();
 	yelpConnector.fetchDataFromYelp();
 	
+	// function to match venueList data with marker data
 	function checkName(data){
-		thisName=data.title;
 		for(j=0;j<model.venueList().length;j++){
-			thatName=model.venueList()[j].name();
-			if(thisName===thatName){
-				console.log('name match! '+data.title);
+			if(data.title===model.venueList()[j].name()){
 				self.currentVenue(model.venueList()[j]);
 			};
 		};
 	};
-	// function to check if 
-	function checkId(i){
+/*
+	// function to match venueList data with marker data
+	function checkId(data){
 		var foundId=model.venueList().some(function(details){
 			return details.Id===i;
 		});
 		if(foundId){
-	    	console.log('found: '+model.venueList()[i].name()+' id: '+model.venueList()[i].Id);
-	    	self.currentVenue(model.venueList()[i]);
+	    	//self.currentVenue(model.venueList()[i]);
+	    };
+	};
+*/
+	// function to match venueList data with marker data
+	function checkIndex(data){
+		var foundId=model.venueList().findIndex(function(details){
+			return details.name()===data.title;
+		});
+		if(foundId){
+	    	self.currentVenue(model.venueList()[foundId]);
 	    };
 	};
 
 	// trigger a marker click event on list click
- 	function selectFromList(venue){
+ 	selectFromList=function(venue){
   		google.maps.event.trigger(venue, 'click', {
 			latLng: venue
 		});
