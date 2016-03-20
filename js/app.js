@@ -59,7 +59,6 @@ function ViewModel(){
 		});*/
 	    for(i=0;i<results.length;i++){
 	    	//console.log(results[i]);
-	    	console.log('i: '+i);
 	    	if(results[i].location.coordinate && results[i].location.geo_accuracy>7){
 	    		// set the marker icon according to category
 	    		var thisIcon;
@@ -82,7 +81,6 @@ function ViewModel(){
 					url: results[i].url
 	    		};
 	    		model.venueList.push(new venue(venueData));
-	    		console.log(venueData.image_url);
 	        	var marker = new google.maps.Marker({
 	        		position: new google.maps.LatLng(results[i].location.coordinate.latitude,results[i].location.coordinate.longitude),
 	            	title:results[i].name,
@@ -98,18 +96,8 @@ function ViewModel(){
 	  			google.maps.event.addListener(marker, 'click', (function(marker, i) {
 	    			return function() {
 		    			//map.panTo(new google.maps.LatLng(results[i].location.coordinate.latitude,results[i].location.coordinate.longitude));
-		    			//thisId=marker.id;
-		    			function checkId(id){
-         					var foundId=model.venueList().some(function(details){
-         						return details.Id===id;
-           					});
-         					if(foundId){
-         						console.log('found: '+model.venueList()[i].name()+' id: '+model.venueList()[i].Id);
-         						self.currentVenue(model.venueList()[i]);
-         					};
-         				};
-         				checkId(i);
-
+         				//checkId(i);
+         				checkName(marker);
 		    			windowOpen=true;
 		    			infowindow.setContent(document.getElementById('info-cntt-holder'));
         				infowindow.open(map, marker);
@@ -126,11 +114,11 @@ function ViewModel(){
 	};
 	// build list of Foursquare venues & set markers 
 	fillListMore=function(){
-		var lastI=model.venueList().length-1;
-		var currentI=model.venueList()[lastI].Id;
+		var lastI=model.venueList().length;
+		//var currentI=model.venueList()[lastI].Id;
 		var thisIcon='img/museums.png';
-		for(i=currentI;(i-currentI)<FsResults.length;i++){
-			newI=i-currentI;
+		for(i=lastI;(i-lastI)<FsResults.length;i++){
+			newI=i-lastI;
 			//console.log(FsResults[i]);
 			var FsName=FsResults[newI].venue.name;
 			// check if a venue is already listed in markers array
@@ -162,19 +150,8 @@ function ViewModel(){
   					});
   					google.maps.event.addListener(marker, 'click', (function(marker, i){
 	    				return function(){
-			    			//thisId=marker.id;
-			    			//console.log('fs i: '+i);
-							function checkId(i){
-	         					var foundId=model.venueList().some(function(details){
-	         						return details.Id===i;
-	           					});
-	         					if(foundId){
-	         						//console.log(thisName);
-	         						console.log('found: '+model.venueList()[i].name()+' id: '+model.venueList()[i].Id);
-	         						self.currentVenue(model.venueList()[i]);
-	         					};
-	         				};
-	         				checkId(i);
+	         				//checkId(i);
+	         				checkName(marker);
 		   					windowOpen=true;
 		   					infowindow.setContent(document.getElementById('info-cntt-holder'));
         					infowindow.open(map, marker);
@@ -190,12 +167,12 @@ function ViewModel(){
 	        };
 		   	checkMarkers(FsName);
 		};
-		
+		/*
 		for(i=0;i<model.markers().length;i++){
 			console.log(i+': marker: '+model.markers()[i].title+' id: '+model.markers()[i].id);
 			console.log(i+': venues: '+model.venueList()[i].name()+' id: '+model.venueList()[i].Id);
 		};
-	/*	*/
+		*/
 	};
 
 	// get foursquare data
@@ -298,15 +275,36 @@ function ViewModel(){
 	})();
 	yelpConnector.fetchDataFromYelp();
 	
+	function checkName(data){
+		thisName=data.title;
+		for(j=0;j<model.venueList().length;j++){
+			thatName=model.venueList()[j].name();
+			if(thisName===thatName){
+				console.log('name match! '+data.title);
+				self.currentVenue(model.venueList()[j]);
+			};
+		};
+	};
+	// function to check if 
+	function checkId(i){
+		var foundId=model.venueList().some(function(details){
+			return details.Id===i;
+		});
+		if(foundId){
+	    	console.log('found: '+model.venueList()[i].name()+' id: '+model.venueList()[i].Id);
+	    	self.currentVenue(model.venueList()[i]);
+	    };
+	};
+
 	// trigger a marker click event on list click
- 	selectFromList=function(venue){
+ 	function selectFromList(venue){
   		google.maps.event.trigger(venue, 'click', {
 			latLng: venue
 		});
 	};
 
 	// function to preserve ko bindings to infowindow DOM element
-	function closeInfoWindow() {
+	function closeInfoWindow(){
 		self.windowOpen=false;
     	document.getElementById('cntt-container').appendChild(infowindow.getContent());
 	};
