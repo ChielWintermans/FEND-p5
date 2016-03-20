@@ -54,9 +54,6 @@ function ViewModel(){
 
 	// build list of Yelp venues & set markers
 	fillList=function(){
-		/*results.forEach(function(venueItem){
-			model.venueList.push(new venue(venueItem));
-		});*/
 	    for(i=0;i<results.length;i++){
 	    	//console.log(results[i]);
 	    	if(results[i].location.coordinate && results[i].location.geo_accuracy>7){
@@ -97,7 +94,6 @@ function ViewModel(){
 	    			return function() {
 		    			//map.panTo(new google.maps.LatLng(results[i].location.coordinate.latitude,results[i].location.coordinate.longitude));
          				checkIndex(marker);
-         				//checkName(marker);
 		    			windowOpen=true;
 		    			infowindow.setContent(document.getElementById('info-cntt-holder'));
         				infowindow.open(map, marker);
@@ -115,7 +111,6 @@ function ViewModel(){
 	// build list of Foursquare venues & set markers 
 	fillListMore=function(){
 		var lastI=model.venueList().length;
-		//var currentI=model.venueList()[lastI].Id;
 		var thisIcon='img/museums.png';
 		for(i=lastI;(i-lastI)<FsResults.length;i++){
 			newI=i-lastI;
@@ -151,7 +146,6 @@ function ViewModel(){
   					google.maps.event.addListener(marker, 'click', (function(marker, i){
 	    				return function(){
 	         				checkIndex(marker);
-	         				//checkName(marker);
 		   					windowOpen=true;
 		   					infowindow.setContent(document.getElementById('info-cntt-holder'));
         					infowindow.open(map, marker);
@@ -167,12 +161,6 @@ function ViewModel(){
 	        };
 		   	checkMarkers(FsName);
 		};
-		/*
-		for(i=0;i<model.markers().length;i++){
-			console.log(i+': marker: '+model.markers()[i].title+' id: '+model.markers()[i].id);
-			console.log(i+': venues: '+model.venueList()[i].name()+' id: '+model.venueList()[i].Id);
-		};
-		*/
 	};
 
 	// get foursquare data
@@ -192,7 +180,6 @@ function ViewModel(){
 		   	}).done(function(data){
 		   		//console.log(data);
 		   		FsResults = FsResults.concat(data.response.groups[0].items);
-		   		//fillListMore();
 		   	}).fail(function(jqxhr, textStatus, error) {
 		      	// Let empty results set indicate problem with load.
 		      	// If there is no callback - there are no UI dependencies
@@ -275,25 +262,6 @@ function ViewModel(){
 	})();
 	yelpConnector.fetchDataFromYelp();
 	
-	// function to match venueList data with marker data
-	function checkName(data){
-		for(j=0;j<model.venueList().length;j++){
-			if(data.title===model.venueList()[j].name()){
-				self.currentVenue(model.venueList()[j]);
-			};
-		};
-	};
-/*
-	// function to match venueList data with marker data
-	function checkId(data){
-		var foundId=model.venueList().some(function(details){
-			return details.Id===i;
-		});
-		if(foundId){
-	    	//self.currentVenue(model.venueList()[i]);
-	    };
-	};
-*/
 	// function to match venueList data with marker data
 	function checkIndex(data){
 		var foundId=model.venueList().findIndex(function(details){
