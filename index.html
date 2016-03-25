@@ -25,7 +25,7 @@
     #mapDiv{
     	width: 80%;
     	height: 500px;
-    	background-color: blue;
+    	/*background-color: blue;*/
     }
     #cntt-container{
         display: none;
@@ -35,7 +35,7 @@
         display: -webkit-flex;
         flex-wrap: wrap;
         width: 350px;
-        background-color: yellow;
+        /*background-color: yellow;*/
     }
     #cntt-header{
         width: 100%;
@@ -50,22 +50,32 @@
         height: 100px;
         /*z-index: 2;*/
         float: left;
-        background-color: red;
+        /*background-color: red;*/
     }
     #cntt-right{
-        height: 100px;
+        /*height: 100px;*/
+        text-align: center;
         /*width: 250px;
         z-index: -1;
         float: right;*/
-        background-color: grey;
+        /*background-color: grey;*/
     }
     #cntt-review{
         width: 100%;
-        background-color: orange;
+        /*background-color: orange;*/
     }
-   .scrollFix {
+   .scrollFix{
         line-height: 1.35;
         overflow: hidden;
+    }
+    .place-rating{
+        color: white;
+        background-color: #223fdb;
+        padding: 5px;
+        height: 10%;
+        width: 50px;
+        text-align: center;
+        border-radius: 10%;
     }
     </style>
 </head>
@@ -76,7 +86,7 @@
 			<li data-bind="text: title, click: selectFromList">
 		</ul>
 	</div>
-    <button data-bind="click: similars">click me</button>
+    <button data-bind="click: showList">click me</button>
     <div id="cntt-container" data-bind="visible: windowOpen">
         <div id="info-cntt-holder" class="scrollFix" data-bind="with: currentVenue">
             <div id="cntt-header"><h2 data-bind="text: name"></h2>
@@ -88,8 +98,10 @@
                 <div id="cntt-right">
                     Phone: <span data-bind="text: phone"></span><br>
                     Address: <span data-bind="text: address"></span><br>
+                    <span data-bind="visible: webUrl"><a data-bind="attr: {href: webUrl}" target="blank">Website</a></span><br>
                     Category: <span data-bind="text: category"></span><br>
-                    <a data-bind="attr: {href:yelpUrl}, visible:yelpReviewCount" target="blank">Yelp reviews: <span data-bind="text: yelpReviewCount"></span> rating: <span data-bind="text: yelpRating"></span></a>
+                    <a data-bind="attr: {href:yelpUrl}, visible:yelpReviewCount" target="blank">Yelp reviews: </a><span data-bind="text: yelpReviewCount"></span><img data-bind="attr: {src: yelpRatingImg}"><br>
+                    <span data-bind="visible: fsRating"><a data-bind="attr: {href: fsLink}"  target="blank">Foursquare rating: </a><span class="place-rating"><strong><span data-bind="text: fsRating"></span></strong><sup> / 10</sup></span></span>
                 </div>
                 <div id="cntt-review">
                     <span data-bind="text: yelpSnippet"></span>

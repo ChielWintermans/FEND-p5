@@ -3,19 +3,29 @@ var map;
 var infoWindow;
 var results=[];
 var FsResults=[];
+var foodList=['Modern European', 'Desserts', 'German', 'French', 'Cafes', 'Do-It-Yourself Food', 'Coffee & Tea', 'Fondue', 'Caribbean', 'Ice Cream', 'Deli / Bodega', 'Hotel Bar', 'Coffee Shop', 'Restaurant', 'Café', 'Brewery', 'Bagels', 'Sandwiches', 'Fish & Chips'];
+var activeList=['Active Life', 'Gyms', 'Skate Park', 'Climbing Gym', 'Gym / Fitness', 'Dance Studio'];
+var museumList=['Art Museum', 'Science Museum'];
 var venue=function(data){
-	this.Id=data.Id;
+	this.dataSrc=ko.observable(data.src);
 	this.name=ko.observable(data.name);
 	this.phone=ko.observable(data.phone);
 	this.address=ko.observable(data.location.display_address[0]);
 	this.img=ko.observable(data.image_url);
-
-	this.yelpRating=ko.observable(data.rating);
-	this.yelpReviewCount=ko.observable(data.review_count);
-	this.yelpSnippet=ko.observable(data.snippet_text);
-	this.yelpUrl=ko.observable(data.url);
-
 	this.category=ko.observable(data.category);
+	this.webUrl=ko.observable(data.webUrl);
+
+	this.yelpRating=ko.observable(data.yRating);
+	this.yelpReviewCount=ko.observable(data.yReview_count);
+	this.yelpRatingImg=ko.observable(data.yRatingImg);
+	this.yelpSnippet=ko.observable(data.ySnippet_text);
+	this.yelpUrl=ko.observable(data.yUrl);
+
+	this.fsRating=ko.observable(data.fsRating);
+	this.fsLink=ko.observable(data.fsLink);
+	this.fsTips=ko.observable(data.fsTips);
+	this.fsTipSnippet=ko.observable(data.fsTipSnippet);
+	this.fsTipLink=ko.observable(data.fsTipLink);
 };
 
 function Model(){
@@ -60,26 +70,24 @@ function ViewModel(){
 	    for(i=0;i<results.length;i++){
 	    	//console.log(results[i]);
 	    	if(results[i].location.coordinate && results[i].location.geo_accuracy>7 && results[i].phone){
-	    		// set the marker icon according to category
-	    		var thisIcon;
-	    		var thisCategory=String(results[i].categories[0][0]);
-	    		if((thisCategory.search(/activ/i)>-1)||(thisCategory.search(/gym/i)>-1)){
-	    			thisIcon='img/play-schools.png';
-	    		}else{
-	    			thisIcon='img/restaurants.png';
-	    		};
-	    		// set the marker
 	    		var venueData={
+	    			src: 'yelp',
 					name: results[i].name,
 					phone: results[i].phone,
 					location: results[i].location,
 					image_url: results[i].image_url,
-					rating: results[i].rating,
-					review_count: results[i].review_count,
-					snippet_text: results[i].snippet_text,
-					url: results[i].url,
-					category: results[i].categories
+					ySnippet_text: results[i].snippet_text,
+					yUrl: results[i].url
 	    		};
+	    		if(results[i].review_count>0){
+	    			venueData.yRating=results[i].rating;
+	    			venueData.yRatingImg=results[i].rating_img_url;
+	    			venueData.yReview_count=results[i].review_count;
+
+	    		};
+	    		// set the category & corresponding marker img
+	    		setCategory(String(results[i].categories[0][0]), venueData);
+	    		var thisIcon=venueData.icon;
 	    		model.venueList.push(new venue(venueData));
 	        	var marker = new google.maps.Marker({
 	        		position: new google.maps.LatLng(results[i].location.coordinate.latitude,results[i].location.coordinate.longitude),
@@ -107,60 +115,53 @@ function ViewModel(){
 				google.maps.event.addListener(infowindow, 'closeclick', closeInfoWindow);
 	    	};
 	    };
-	    fillListMore();
+		similars();
 	};
+
 	// build list of Foursquare venues & set markers 
 	fillListMore=function(){
 		var lastI=model.venueList().length;
-		var thisIcon='img/museums.png';
 		for(i=lastI;(i-lastI)<FsResults.length;i++){
 			newI=i-lastI;
 			//console.log(FsResults[i]);
 			var FsName=FsResults[newI].venue.name;
-			// check if a venue is already listed in markers array
-         	function checkMarkers(FsName){
-         		var foundMarker=model.markers().some(function(venueMarker){
-         			return venueMarker.title===FsName;
-         		});
-         		if(!foundMarker){
-         			if(FsResults[newI].venue.contact.phone){
-	         			var venueData={
-							name: FsResults[newI].venue.name,
-							phone: FsResults[newI].venue.contact.phone,
-							location: {display_address: [FsResults[newI].venue.location.address]},
-							category: FsResults[newI].venue.categories[0].shortName,
-							image_url: FsResults[newI].venue.photos.groups[0].items[0].prefix+'100x100'+FsResults[newI].venue.photos.groups[0].items[0].suffix,
-						};
-						//console.log(venueData.name+': '+venueData.category);
-						model.venueList.push(new venue(venueData));
-	         			var marker = new google.maps.Marker({
-							position: new google.maps.LatLng(FsResults[newI].venue.location.lat,FsResults[newI].venue.location.lng),
-				   			title:FsName,
-				   			map:map,
-				   			icon: thisIcon,
-				   			animation: google.maps.Animation.DROP
-						});
-						marker.setMap(map);
-						model.markers.push(marker);
-						infowindow = new google.maps.InfoWindow({
-	  					});
-	  					google.maps.event.addListener(marker, 'click', (function(marker, i){
-		    				return function(){
-		    					checkIndex(marker);
-			   					windowOpen=true;
-			   					infowindow.setContent(document.getElementById('info-cntt-holder'));
-	        					infowindow.open(map, marker);
-	        					// animate the marker on click
-	        					marker.setAnimation(google.maps.Animation.BOUNCE);
-	  							setTimeout(function(){ marker.setAnimation(null); }, 1400);   				
-	        				};
-	    				})(marker, i));
-	    				// add listener for infowindow close click so ko bindings stay preserved.
-						google.maps.event.addListener(infowindow, 'closeclick', closeInfoWindow);
-					};
-	         	};
+   			if(FsResults[newI].venue.contact.phone){
+       			var venueData={
+      				src: 'fs',
+					name: FsResults[newI].venue.name,
+					phone: FsResults[newI].venue.contact.phone,
+					location: {display_address: [FsResults[newI].venue.location.address]},
+					image_url: FsResults[newI].venue.photos.groups[0].items[0].prefix+'100x100'+FsResults[newI].venue.photos.groups[0].items[0].suffix				
+				};
+				appendFsData(venueData, newI);
+				setCategory(FsResults[newI].venue.categories[0].shortName, venueData);
+				model.venueList.push(new venue(venueData));
+				var thisIcon=venueData.icon;
+       			var marker = new google.maps.Marker({
+					position: new google.maps.LatLng(FsResults[newI].venue.location.lat,FsResults[newI].venue.location.lng),
+		   			title:FsName,
+		   			map:map,
+		   			icon: thisIcon,
+		   			animation: google.maps.Animation.DROP
+				});
+				marker.setMap(map);
+				model.markers.push(marker);
+				infowindow = new google.maps.InfoWindow({
+				});
+				google.maps.event.addListener(marker, 'click', (function(marker, i){
+    				return function(){
+    					checkIndex(marker);
+	   					windowOpen=true;
+	   					infowindow.setContent(document.getElementById('info-cntt-holder'));
+       					infowindow.open(map, marker);
+       					// animate the marker on click
+       					marker.setAnimation(google.maps.Animation.BOUNCE);
+						setTimeout(function(){ marker.setAnimation(null); }, 1400);   				
+       				};
+   				})(marker, i));
+   				// add listener for infowindow close click so ko bindings stay preserved.
+				google.maps.event.addListener(infowindow, 'closeclick', closeInfoWindow);
 	        };
-		   	checkMarkers(FsName);
 		};
 	};
 
@@ -171,8 +172,6 @@ function ViewModel(){
 		// Foursquare tokens
 		var CLIENT_ID="23ZBVKL12XL44XDMPUJZFHNY2ZHSQTNGCMOAFJ0HTHC1EG3S";
     	var CLIENT_SECRET="E3PEPIVQ4TAE00V5CGRGB3PEO2CS5TMH4YM14EKJN4L5BALN";
-//	   	var CAT_ID="4d4b7105d754a06374d81259"; // food category
-//		var CAT_ID2="4bf58dd8d48988d1d0941735"; // dessert shop
 
 	    var searchFsRequest=function(requestPayload, callback){
 		  	$.ajax({
@@ -263,6 +262,32 @@ function ViewModel(){
 	})();
 	yelpConnector.fetchDataFromYelp();
 	
+	// function to set venue category & marker img
+	function setCategory(data, target){
+		var foundFood=foodList.some(function(details){
+			return details===data;
+		});
+		var foundActive=activeList.some(function(details){
+			return details===data;
+		});
+		var foundMuseum=museumList.some(function(details){
+			return details===data;
+		});
+		if(foundFood){
+			target.icon='img/restaurants.png';
+			target.category='Food & drink';
+		}else if(foundActive){
+			target.icon='img/play-schools.png';
+			target.category='Active Life';
+		}else if(foundMuseum){
+			target.icon='img/museums.png';
+			target.category='Museums';
+		}else{
+			target.icon='img/default.png';
+			target.category=data;
+		};
+	};
+
 	// function to match venueList data with marker data
 	function checkIndex(data){
 		var foundId=model.venueList().findIndex(function(details){
@@ -286,37 +311,66 @@ function ViewModel(){
     	document.getElementById('cntt-container').appendChild(infowindow.getContent());
 	};
 
-	// to do: 
-	// insert this function in the fs listbuilding function
-	// switch results[] for model.venueList() so only already marked venues are checked
-
 	// function to match yelp venues to foursquare venues based on name even if they don't match 100%
 	similars=function(){
-		for(var item in results){
-			var yelpName=String(results[item].name);
-			for(var item in FsResults){
-				var FsName=String(FsResults[item].venue.name);
-				// helper function to prevent detection of false doubles
-				function ignoreString(data){
-					var ignoreThis=FsName.includes(data);
-					if(ignoreThis){
-						FsName=FsName.replace(data, '');
+		for(var item in model.venueList()){
+			var thisVenue=model.venueList()[item];
+			if(thisVenue.dataSrc()==='yelp'){
+				var venueName=String(thisVenue.name());
+				for(var item2 in FsResults){
+					var FsName=String(FsResults[item2].venue.name);
+					// helper function to prevent detection of false doubles
+					function ignoreString(data){
+						var ignoreThis=FsName.includes(data);
+						if(ignoreThis){
+							FsName=FsName.replace(data, '');
+						};
+					};
+					ignoreString('Restaurant');
+					ignoreString('Het Veem');
+//					console.log(FsResults.length);
+					for(i=0;i<(FsName.length-4);i++){
+						var shortFsName=FsName.slice(i, i+5);
+						var strFound=venueName.includes(shortFsName);
+						if(strFound){
+							// only add additional data from foursquare to the venue object
+							//console.log('appending to '+venueName);
+							appendFsData(thisVenue, item2);
+							FsResults.splice(item2,1);
+							thisVenue.checked=true;
+							break;
+						};
 					};
 				};
-				ignoreString('Restaurant');
-				ignoreString('Het Veem');
-				for(i=0;i<(FsName.length-4);i++){
-					var shortFsName=FsName.slice(i, i+5);
-					var strFound=yelpName.includes(shortFsName);
-					if(strFound){
-						// only add additional data from foursquare to the venue object instead of adding a new venue object to the venueList.
-						console.log('matched: '+FsName+', '+yelpName);
-					}else{
-						// add a new marker to marker array and a new venue object to the venuelist
-					};
-				};
+			};	
+		};
+		fillListMore();
+	};
+
+	function appendFsData(venueObject, fsId){
+		if(!venueObject.img){
+			venueObject.img=ko.observable(FsResults[fsId].venue.photos.groups[0].items[0].prefix+'100x100'+FsResults[fsId].venue.photos.groups[0].items[0].suffix);
+		};
+		venueObject.webUrl=FsResults[fsId].venue.url;
+		venueObject.fsRating=FsResults[fsId].venue.rating;
+		venueObject.fsLink='http://foursquare.com/v/'+FsResults[fsId].venue.id;
+		if(FsResults[fsId].tips){
+			venueObject.fsTips=FsResults[fsId].tips.length;
+			venueObject.fsTipSnippet=FsResults[fsId].tips[0].text;
+			venueObject.fsTipLink=FsResults[fsId].tips[0].canonicalUrl;
+		};
+	};
+
+	showList=function(){
+		for(i=0;i<model.venueList().length;i++){
+			if(typeof model.venueList()[i].fsLink==='function'){
+				thisLink=model.venueList()[i].fsLink();
+				console.log(thisLink);
+			}else{
+				console.log('skipped '+i);
 			};
 		};
 	};
 };
+
 ko.applyBindings(new ViewModel());
