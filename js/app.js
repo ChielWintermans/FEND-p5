@@ -79,6 +79,9 @@ function ViewModel(){
 					ySnippet_text: results[i].snippet_text,
 					yUrl: results[i].url
 	    		};
+	    		if(!results[i].image_url){
+	    			venueData.image_url='img/default.jpg';
+	    		};
 	    		if(results[i].review_count>0){
 	    			venueData.yRating=results[i].rating;
 	    			venueData.yRatingImg=results[i].rating_img_url;
@@ -349,7 +352,7 @@ function ViewModel(){
 
 	function appendFsData(venueObject, fsId){
 		if(!venueObject.img){
-			venueObject.img=ko.observable(FsResults[fsId].venue.photos.groups[0].items[0].prefix+'100x100'+FsResults[fsId].venue.photos.groups[0].items[0].suffix);
+			venueObject.img=FsResults[fsId].venue.photos.groups[0].items[0].prefix+'100x100'+FsResults[fsId].venue.photos.groups[0].items[0].suffix;
 		};
 		venueObject.webUrl=FsResults[fsId].venue.url;
 		venueObject.fsRating=FsResults[fsId].venue.rating;
