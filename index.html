@@ -23,9 +23,13 @@
 		/*background-color: red;*/
 	}
     #mapDiv{
-    	width: 80%;
+    	width: 70%;
     	height: 500px;
+        float: right;
     	/*background-color: blue;*/
+    }
+    #listDiv{
+        width: 25%;
     }
     #cntt-container{
         display: none;
@@ -98,12 +102,14 @@
 </head>
 <body>
 	<div class="container">
-		<div id="mapDiv" class="map"></div>
-		<ul data-bind="foreach: model.markers">
+		<ul id="listDiv" data-bind="foreach: model.markers">
 			<li data-bind="text: title, click: selectFromList">
 		</ul>
+        <div id="mapDiv" class="map"></div>
 	</div>
+    <!-- test button, please ignore
     <button data-bind="click: showList">click me</button>
+-->
     <div id="cntt-container" data-bind="visible: windowOpen">
         <div id="info-cntt-holder" class="scrollFix" data-bind="with: currentVenue">
             <div id="cntt-header"><h2 data-bind="text: name"></h2>
