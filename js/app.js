@@ -3,9 +3,9 @@ var map;
 var infoWindow;
 var results=[];
 var FsResults=[];
-var foodList=['Modern European', 'Desserts', 'German', 'French', 'Cafes', 'Do-It-Yourself Food', 'Coffee & Tea', 'Fondue', 'Caribbean', 'Ice Cream', 'Deli / Bodega', 'Hotel Bar', 'Coffee Shop', 'Restaurant', 'Café', 'Brewery', 'Bagels', 'Sandwiches', 'Fish & Chips'];
+var foodList=['Modern European', 'Desserts', 'German', 'French', 'Cafes', 'Do-It-Yourself Food', 'Coffee & Tea', 'Fondue', 'Caribbean', 'Ice Cream', 'Deli / Bodega', 'Hotel Bar', 'Coffee Shop', 'Restaurant', 'Café', 'Brewery', 'Bagels', 'Sandwiches', 'Fish & Chips', 'Food Stands', 'Dive Bars', 'Food'];
 var activeList=['Active Life', 'Gyms', 'Skate Park', 'Climbing Gym', 'Gym / Fitness', 'Dance Studio'];
-var museumList=['Art Museum', 'Science Museum'];
+var museumList=['Art Museum', 'Science Museum', 'Art Gallery'];
 var venue=function(data){
 	this.dataSrc=ko.observable(data.src);
 	this.name=ko.observable(data.name);
@@ -69,7 +69,7 @@ function ViewModel(){
 	fillList=function(){
 	    for(i=0;i<results.length;i++){
 	    	//console.log(results[i]);
-	    	if(results[i].location.coordinate && results[i].location.geo_accuracy>7 && results[i].phone){
+	    	if(results[i].location.coordinate && results[i].location.geo_accuracy>7/* && results[i].phone*/){
 	    		var venueData={
 	    			src: 'yelp',
 					name: results[i].name,
@@ -97,7 +97,8 @@ function ViewModel(){
 	            	title:results[i].name,
 	            	map:map,
 	            	icon: thisIcon,
-	            	animation: google.maps.Animation.DROP
+	            	animation: google.maps.Animation.DROP,
+	            	isVisible: ko.observable(true)
 	            });
 	        	marker.setMap(map);	 
 	    		model.markers.push(marker);
@@ -118,6 +119,7 @@ function ViewModel(){
 				google.maps.event.addListener(infowindow, 'closeclick', closeInfoWindow);
 	    	};
 	    };
+	    //console.log(model.markers());
 		similars();
 	};
 
@@ -128,7 +130,7 @@ function ViewModel(){
 			newI=i-lastI;
 			//console.log(FsResults[i]);
 			var FsName=FsResults[newI].venue.name;
-   			if(FsResults[newI].venue.contact.phone){
+   			//if(FsResults[newI].venue.contact.phone){
        			var venueData={
       				src: 'fs',
 					name: FsResults[newI].venue.name,
@@ -145,7 +147,8 @@ function ViewModel(){
 		   			title:FsName,
 		   			map:map,
 		   			icon: thisIcon,
-		   			animation: google.maps.Animation.DROP
+		   			animation: google.maps.Animation.DROP,
+	            	isVisible: ko.observable(true)
 				});
 				marker.setMap(map);
 				model.markers.push(marker);
@@ -164,7 +167,7 @@ function ViewModel(){
    				})(marker, i));
    				// add listener for infowindow close click so ko bindings stay preserved.
 				google.maps.event.addListener(infowindow, 'closeclick', closeInfoWindow);
-	        };
+	        //};
 		};
 	};
 
@@ -364,6 +367,84 @@ function ViewModel(){
 		};
 	};
 
+	// filter results by category show this category
+	showThis=function(data){
+		resetMarkers();
+		for(var venueDetails in model.venueList()){
+			var venueCat=model.venueList()[venueDetails].category();
+			if(data==='Other'){
+				if((venueCat==='Food & drink')||(venueCat==='Active Life')||(venueCat==='Museums')){
+					var thisPlace=model.venueList()[venueDetails].name();
+					var thisPlaceMarker=model.markers().findIndex(function(details){
+						return details.title===thisPlace;
+					});
+					if(thisPlaceMarker>-1){
+						model.markers()[thisPlaceMarker].setVisible(false);
+						model.markers()[thisPlaceMarker].isVisible(false);
+					}else{
+						model.markers()[thisPlace].setVisible(true);
+						model.markers()[thisPlace].isVisible(true);
+					};
+				};
+			}else{
+				if(venueCat!=data){
+					var notThisCat=model.venueList()[venueDetails].name();
+					var notThis=model.markers().findIndex(function(details){
+						return details.title===notThisCat;
+					});
+					if(notThis>-1){
+						model.markers()[notThis].setVisible(false);
+						model.markers()[notThis].isVisible(false);
+					}else{
+						model.markers()[notThis].setVisible(true);
+						model.markers()[notThis].isVisible(true);
+					};
+				};
+			};
+		};
+	};
+
+	showOther=function(){
+		resetMarkers();
+		for(var venueDetails in model.venueList()){
+			var venueCat=model.venueList()[venueDetails].category();
+			if((venueCat==='Food & drink')||(venueCat==='Active Life')||(venueCat==='Museums')){
+				var thisPlace=model.venueList()[venueDetails].name();
+				console.log(thisPlace);
+				var thisPlaceMarker=model.markers().findIndex(function(details){
+					return details.title===thisPlace;
+				});
+				if(thisPlaceMarker>-1){
+					console.log('false marker: '+model.markers()[thisPlaceMarker].title);
+					model.markers()[thisPlaceMarker].setVisible(false);
+					model.markers()[thisPlaceMarker].isVisible(false);
+				}else{
+					console.log('true marker: '+model.markers()[thisPlace].title);
+					model.markers()[thisPlace].setVisible(true);
+					model.markers()[thisPlace].isVisible(true);
+				};
+			};
+		};
+	};
+
+	// set all markers to visible
+	resetMarkers=function(){
+		for(var vis in model.markers()){
+			model.markers()[vis].setVisible(true);
+			model.markers()[vis].isVisible(true);
+		};
+	};
+/*
+	hideThis=function(){
+		for(var vis in model.markers()){
+			model.markers()[vis].setVisible(false);
+			model.markers()[vis].isVisible(false);
+			console.log(model.markers()[vis].title);
+			//console.log(model.markers()[vis].isVisible());
+		};
+	};
+
+ test function
 	showList=function(){
 		for(i=0;i<model.venueList().length;i++){
 			if(typeof model.venueList()[i].fsLink==='function'){
@@ -374,6 +455,7 @@ function ViewModel(){
 			};
 		};
 	};
+*/
 };
 
 ko.applyBindings(new ViewModel());

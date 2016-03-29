@@ -103,13 +103,22 @@
 <body>
 	<div class="container">
 		<ul id="listDiv" data-bind="foreach: model.markers">
-			<li data-bind="text: title, click: selectFromList">
+	        <li data-bind="text: title, visible: isVisible">
 		</ul>
         <div id="mapDiv" class="map"></div>
 	</div>
-    <!-- test button, please ignore
-    <button data-bind="click: showList">click me</button>
--->
+    <!-- test button, please ignore-->
+    <div id="bttn-holder">
+        Filter by category: 
+        <button data-bind="click: showThis('Food & drink')">Food</button>
+        <button data-bind="click: showThis('Active Life')">Active</button>
+        <button data-bind="click: showThis('Museums')">Museums</button>
+        <button data-bind="click: showThis('Other')">Other</button>
+        <button data-bind="click: resetMarkers">Show All</button>
+    </div>
+<!-- -->
+
+    <!-- container for infowindow data -->
     <div id="cntt-container" data-bind="visible: windowOpen">
         <div id="info-cntt-holder" class="scrollFix" data-bind="with: currentVenue">
             <div id="cntt-header"><h2 data-bind="text: name"></h2>
