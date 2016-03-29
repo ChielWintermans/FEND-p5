@@ -388,40 +388,17 @@ function ViewModel(){
 				};
 			}else{
 				if(venueCat!=data){
-					var notThisCat=model.venueList()[venueDetails].name();
-					var notThis=model.markers().findIndex(function(details){
-						return details.title===notThisCat;
+					var thisPlace=model.venueList()[venueDetails].name();
+					var thisPlaceMarker=model.markers().findIndex(function(details){
+						return details.title===thisPlace;
 					});
-					if(notThis>-1){
-						model.markers()[notThis].setVisible(false);
-						model.markers()[notThis].isVisible(false);
+					if(thisPlaceMarker>-1){
+						model.markers()[thisPlaceMarker].setVisible(false);
+						model.markers()[thisPlaceMarker].isVisible(false);
 					}else{
-						model.markers()[notThis].setVisible(true);
-						model.markers()[notThis].isVisible(true);
+						model.markers()[thisPlaceMarker].setVisible(true);
+						model.markers()[thisPlaceMarker].isVisible(true);
 					};
-				};
-			};
-		};
-	};
-
-	showOther=function(){
-		resetMarkers();
-		for(var venueDetails in model.venueList()){
-			var venueCat=model.venueList()[venueDetails].category();
-			if((venueCat==='Food & drink')||(venueCat==='Active Life')||(venueCat==='Museums')){
-				var thisPlace=model.venueList()[venueDetails].name();
-				console.log(thisPlace);
-				var thisPlaceMarker=model.markers().findIndex(function(details){
-					return details.title===thisPlace;
-				});
-				if(thisPlaceMarker>-1){
-					console.log('false marker: '+model.markers()[thisPlaceMarker].title);
-					model.markers()[thisPlaceMarker].setVisible(false);
-					model.markers()[thisPlaceMarker].isVisible(false);
-				}else{
-					console.log('true marker: '+model.markers()[thisPlace].title);
-					model.markers()[thisPlace].setVisible(true);
-					model.markers()[thisPlace].isVisible(true);
 				};
 			};
 		};
@@ -434,28 +411,6 @@ function ViewModel(){
 			model.markers()[vis].isVisible(true);
 		};
 	};
-/*
-	hideThis=function(){
-		for(var vis in model.markers()){
-			model.markers()[vis].setVisible(false);
-			model.markers()[vis].isVisible(false);
-			console.log(model.markers()[vis].title);
-			//console.log(model.markers()[vis].isVisible());
-		};
-	};
-
- test function
-	showList=function(){
-		for(i=0;i<model.venueList().length;i++){
-			if(typeof model.venueList()[i].fsLink==='function'){
-				thisLink=model.venueList()[i].fsLink();
-				console.log(thisLink);
-			}else{
-				console.log('skipped '+i);
-			};
-		};
-	};
-*/
 };
 
 ko.applyBindings(new ViewModel());
