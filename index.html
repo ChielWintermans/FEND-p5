@@ -4,24 +4,34 @@
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
 	<meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>FEND p5</title>
+    <link href='https://fonts.googleapis.com/css?family=Telex|Aldrich' rel='stylesheet' type='text/css'>
+    <link href='css/style.css' rel='stylesheet' type='text/css'>
+    <title>Strijp-S Neighbourhood Map</title>
     <style>
-    body{
-        font-family: arial;
-	}
     *{
-		-webkit-box-sizing: border-box;
-		-moz-box-sizing: border-box;
-		-ms-box-sizing: border-box;
-		box-sizing: border-box;
+        -webkit-box-sizing: border-box;
+        -moz-box-sizing: border-box;
+        -ms-box-sizing: border-box;
+        box-sizing: border-box;
+    }
+    body{
+        font-family: Telex, sans-serif;
+        font-size: 15px;
 	}
-	.container{
-		display: flex;
-		display: -webkit-flex;
-		flex-wrap: wrap;
-		width: 100%;
-		/*background-color: red;*/
-	}
+    h1{
+        font-family: 'Aldrich', sans-serif;
+        font-size: 40px;
+    }
+    h2{
+        font-family: 'Aldrich', sans-serif;
+        font-size: 17px;
+    }
+    .container{
+        display: flex;
+        display: -webkit-flex;
+        flex-wrap: wrap;
+        width: 100%;
+    }
     #img-header{
         width: 100%;
         height: 100px;
@@ -50,23 +60,19 @@
     }
     #form-holder{
         width: 25%;
-        /*background-color: red;*/
     }
     #bttn-holder{
         width: 75%;
-        /*background-color: yellow;*/
         float: right;
     }
     #errorMsg{
         width: 100%;
         height: 25px;
-        /*background-color: blue;*/
     }
     #mapDiv{
     	width: 70%;
     	height: 500px;
         float: right;
-    	/*background-color: blue;*/
     }
     #listDiv{
         width: 25%;
@@ -80,7 +86,6 @@
         display: -webkit-flex;
         flex-wrap: wrap;
         width: 350px;
-        /*background-color: yellow;*/
     }
     #cntt-header{
         width: 100%;
@@ -111,12 +116,10 @@
         width: 100px;
         height: 100px;
         float: left;
-        /*background-color: red;*/
     }
     #cntt-details{
         width: 250px;
         float: right;
-        /*background-color: grey;*/
     }
     .cntt-pair{
         width: 100%;
@@ -126,19 +129,15 @@
         width: 40%;
         float: left;
         padding-left: 7px;
-        /*background-color: green;*/
     }
     .cntt-value{
         width: 60%;
         padding-left: 7px;
         float: left;
-        /*background-color: red;*/
     }
-
     #cntt-review-holder{
         width: 100%;
         padding-top: 10px;
-        /*background-color: orange;*/
     }
     .cntt-review-txt{
         width: 100%;
@@ -188,9 +187,9 @@
             </div>
         </div>
         <div id="errorMsg" data-bind="text: errorMessage, visible: errorMessage">test</div>
-		<ul id="listDiv" data-bind="foreach: model.markers">
-	        <li data-bind="text: title, visible: isVisible, click: selectFromList">
-		</ul>
+		    <ul id="listDiv" data-bind="foreach: model.markers">
+	           <li data-bind="text: title, visible: isVisible, click: selectFromList">
+		    </ul>
         <div id="mapDiv" class="map"></div>
 	</div>
 
