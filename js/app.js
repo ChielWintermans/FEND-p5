@@ -45,6 +45,8 @@ function ViewModel(){
 	var self = this;
 	// variable to store the selected venue
 	self.currentVenue=ko.observable(model.venueList()[0]);
+	self.searchTerm=ko.observable();
+	self.errorMessage=ko.observable();
 
 	// show map
 	initMap=function(){
@@ -107,6 +109,7 @@ function ViewModel(){
   				});
 	  			google.maps.event.addListener(marker, 'click', (function(marker, i) {
 	    			return function(){
+	    				resetErrMsg();
          				checkIndex(marker);
 		    			infowindow.setContent(document.getElementById('info-cntt-holder'));
         				infowindow.open(map, marker);
@@ -115,7 +118,10 @@ function ViewModel(){
         				setTimeout(function(){ marker.setAnimation(null); }, 1400);   
         				// add listener to close the infowindow if the corresponding marker is hidden
         				google.maps.event.addListenerOnce( marker, "visible_changed", function(){
+        					console.log('closing infowindow 1');
         					infowindow.close();
+        					//google.maps.event.trigger(infowindow, 'closeclick', closeInfoWindow);
+        					//closeInfoWindow();
     					});
         			};
     			})(marker, i));
@@ -128,7 +134,6 @@ function ViewModel(){
 
 	// build list of Foursquare venues & set markers 
 	fillListMore=function(){
-
 		var lastI=model.venueList().length;
 		for(i=lastI;(i-lastI)<FsResults.length;i++){
 			newI=i-lastI;
@@ -159,6 +164,7 @@ function ViewModel(){
 				});
 				google.maps.event.addListener(marker, 'click', (function(marker, i){
     				return function(){
+    					resetErrMsg();
     					checkIndex(marker);
 	   					infowindow.setContent(document.getElementById('info-cntt-holder'));
        					infowindow.open(map, marker);
@@ -167,6 +173,7 @@ function ViewModel(){
 						setTimeout(function(){ marker.setAnimation(null); }, 1400);
 						// add listener to close the infowindow if the corresponding marker is hidden
 						google.maps.event.addListenerOnce( marker, "visible_changed", function(){
+							console.log('closing infowindow 2');
         					infowindow.close();
     					});				
        				};
@@ -318,8 +325,9 @@ function ViewModel(){
 
 	// preserve ko bindings to infowindow DOM element
 	function closeInfoWindow(){
-    	document.getElementById('cntt-container').appendChild(infowindow.getContent());
-
+//		if(infowindow){
+    		document.getElementById('cntt-container').appendChild(infowindow.getContent());
+    	//};
 	};
 
 	// match yelp venues to foursquare venues based on name even if they don't match 100%
@@ -372,6 +380,7 @@ function ViewModel(){
 
 	// filter results by category show this category
 	showThis=function(data){
+		resetErrMsg();
 		if(infowindow){
 			closeInfoWindow();
 		};
@@ -417,6 +426,38 @@ function ViewModel(){
 			model.markers()[vis].isVisible(true);
 		};
 	};
-};
 
+	// search for..
+	searchVenues=function(){
+		var findThis=String(self.searchTerm()).toLowerCase();
+		if(findThis===''){
+			resetMarkers();
+		}else{
+			var resultFound=false;
+			for(var thisVenue in model.markers()){
+				var checkName=String(model.markers()[thisVenue].title).toLowerCase();
+				var matchFound=checkName.includes(findThis);
+				if(!matchFound){
+					model.markers()[thisVenue].setVisible(false);
+					model.markers()[thisVenue].isVisible(false);
+				}else{
+					console.log('matched: '+checkName);
+					model.markers()[thisVenue].setVisible(true);
+					model.markers()[thisVenue].isVisible(true);
+					resultFound=true;		
+				};
+			};
+			if(!resultFound){
+				self.errorMessage('no matches found');
+				resetMarkers();
+			};
+		};
+	};
+
+	// clear the error msg & search fields
+	function resetErrMsg(){
+		self.errorMessage('');
+		self.searchTerm('');
+	};
+};
 ko.applyBindings(new ViewModel());
