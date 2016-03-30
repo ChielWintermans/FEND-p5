@@ -22,9 +22,34 @@
 		width: 100%;
 		/*background-color: red;*/
 	}
-    #bttn-holder{
+    #img-header{
+        width: 100%;
+        height: 100px;
+        background-color: #d61b0c;
+        z-index: -1;
+    }
+    #img-head-left{
+        width: 100px;
+        height: 100px;
+    }
+    #img-head-right{
+        width: 100px;
+        height: 100px;
+        float: right;
+    }
+    #filter-holder{
         width: 100%;
         padding-bottom: 10px;
+        padding-top: 10px;
+    }
+    #form-holder{
+        width: 25%;
+        /*background-color: red;*/
+    }
+    #bttn-holder{
+        width: 75%;
+        /*background-color: yellow;*/
+        float: right;
     }
     #errorMsg{
         width: 100%;
@@ -53,11 +78,28 @@
     }
     #cntt-header{
         width: 100%;
-        text-align: center;
+        height:55px;
+        background-color: #d61b0c;
     }
-    
+    #cntt-head-img-left{
+        width: 45px;
+        height: 55px;
+        float: left;
+    }
+    #cntt-head-img-right{
+        width: 45px;
+        height: 55px;
+        float: right;
+    }
+    #cntt-head-txt{
+        width: 260px;
+        text-align: center;
+        color: white;
+        float: left;
+    }
     #cntt-body{
         width: 100%;
+        padding-top: 7px;
     }
     #cntt-img{
         width: 100px;
@@ -112,15 +154,29 @@
 </head>
 <body>
 	<div class="container">
-        <div id="bttn-holder">
-            Search: <input data-bind="value: searchTerm">
-            <button data-bind="click: searchVenues">Search</button>
-            Filter by category: 
-            <button data-bind="click: showThis('Food & drink')">Food</button>
-            <button data-bind="click: showThis('Active Life')">Active</button>
-            <button data-bind="click: showThis('Museums')">Museums</button>
-            <button data-bind="click: showThis('Other')">Other</button>
-            <button data-bind="click: resetMarkers">Show All</button>
+        <div id="img-header">
+            <div id="img-head-right">
+                <img src="img/StrijpS_100x100a.jpg">
+            </div>
+            <div id="img-head-left">
+                <img src="img/Ehv_100x100a.jpg">
+            </div>
+        </div>
+        <div id="filter-holder">
+            <div id="bttn-holder">
+                Filter by category: 
+                <button data-bind="click: showThis('Food & drink')">Food</button>
+                <button data-bind="click: showThis('Active Life')">Active</button>
+                <button data-bind="click: showThis('Museums')">Museums</button>
+                <button data-bind="click: showThis('Other')">Other</button>
+                <button data-bind="click: resetMarkers">Show All</button>
+            </div>
+            <div id="form-holder">
+                <form data-bind="submit: searchVenues">
+                    Search: <input type="text" data-bind="value: searchTerm, valueUpdate: 'afterkeydown'">
+                    <button type="submit" data-bind="enable: searchTerm().length>0">Search</button>
+                </form>
+            </div>
         </div>
         <div id="errorMsg" data-bind="text: errorMessage, visible: errorMessage">test</div>
 		<ul id="listDiv" data-bind="foreach: model.markers">
@@ -132,8 +188,19 @@
     <!-- container for infowindow data -->
     <div id="cntt-container">
         <div id="info-cntt-holder" class="scrollFix" data-bind="with: currentVenue">
-            <div id="cntt-header"><h2 data-bind="text: name"></h2>
-            </div>
+            <div id="cntt-header">
+                <div id="cntt-head-img-right">
+                    <img src="img/StrijpS_45x55a.jpg">
+                </div>
+
+                <div id="cntt-head-img-left">
+                    <img src="img/ehv_45x55a.jpg">
+                </div>
+                <div id="cntt-head-txt">
+                    <h2 data-bind="text: name"></h2>
+                </div>
+
+             </div>
             <div id="cntt-body">
                 <div id="cntt-img"  data-bind="visible: img">
                     <img data-bind="attr: {src: img}">

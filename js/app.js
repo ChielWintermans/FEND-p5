@@ -45,7 +45,7 @@ function ViewModel(){
 	var self = this;
 	// variable to store the selected venue
 	self.currentVenue=ko.observable(model.venueList()[0]);
-	self.searchTerm=ko.observable();
+	self.searchTerm=ko.observable('');
 	self.errorMessage=ko.observable();
 
 	// show map
@@ -72,7 +72,7 @@ function ViewModel(){
 	// build list of Yelp venues & set markers
 	fillList=function(){
 	    for(i=0;i<results.length;i++){
-	    	if(results[i].location.coordinate && results[i].location.geo_accuracy>7/* && results[i].phone*/){
+	    	if(results[i].location.coordinate && results[i].location.geo_accuracy>7 && (results[i].phone||results[i].location.display_address[0])){
 	    		var venueData={
 	    			src: 'yelp',
 					name: results[i].name,
@@ -117,12 +117,7 @@ function ViewModel(){
         				marker.setAnimation(google.maps.Animation.BOUNCE);
         				setTimeout(function(){ marker.setAnimation(null); }, 1400);   
         				// add listener to close the infowindow if the corresponding marker is hidden
-        				google.maps.event.addListenerOnce( marker, "visible_changed", function(){
-        					console.log('closing infowindow 1');
-        					infowindow.close();
-        					//google.maps.event.trigger(infowindow, 'closeclick', closeInfoWindow);
-        					//closeInfoWindow();
-    					});
+        				google.maps.event.addListenerOnce( marker, "visible_changed", closeInfoWindow);
         			};
     			})(marker, i));
 				// add listener for infowindow close click so ko bindings stay preserved.
@@ -138,7 +133,7 @@ function ViewModel(){
 		for(i=lastI;(i-lastI)<FsResults.length;i++){
 			newI=i-lastI;
 			var FsName=FsResults[newI].venue.name;
-   			//if(FsResults[newI].venue.contact.phone){
+   			if(FsResults[newI].venue.contact.phone||FsResults[newI].venue.location.address){
        			var venueData={
       				src: 'fs',
 					name: FsResults[newI].venue.name,
@@ -172,15 +167,12 @@ function ViewModel(){
        					marker.setAnimation(google.maps.Animation.BOUNCE);
 						setTimeout(function(){ marker.setAnimation(null); }, 1400);
 						// add listener to close the infowindow if the corresponding marker is hidden
-						google.maps.event.addListenerOnce( marker, "visible_changed", function(){
-							console.log('closing infowindow 2');
-        					infowindow.close();
-    					});				
+				        google.maps.event.addListenerOnce(marker, "visible_changed", closeInfoWindow);
        				};
    				})(marker, i));
    				// add listener for infowindow close click so ko bindings stay preserved.
 				google.maps.event.addListener(infowindow, 'closeclick', closeInfoWindow);
-	        //};
+	        };
 		};
 	};
 
@@ -325,9 +317,8 @@ function ViewModel(){
 
 	// preserve ko bindings to infowindow DOM element
 	function closeInfoWindow(){
-//		if(infowindow){
-    		document.getElementById('cntt-container').appendChild(infowindow.getContent());
-    	//};
+		infowindow.close();
+		document.getElementById('cntt-container').appendChild(infowindow.getContent());
 	};
 
 	// match yelp venues to foursquare venues based on name even if they don't match 100%
@@ -381,10 +372,8 @@ function ViewModel(){
 	// filter results by category show this category
 	showThis=function(data){
 		resetErrMsg();
-		if(infowindow){
-			closeInfoWindow();
-		};
 		resetMarkers();
+		map.panTo(new google.maps.LatLng(model.home[0],model.home[1]));
 		for(var venueDetails in model.venueList()){
 			var venueCat=model.venueList()[venueDetails].category();
 			if(data==='Other'){
@@ -435,16 +424,17 @@ function ViewModel(){
 		}else{
 			var resultFound=false;
 			for(var thisVenue in model.markers()){
-				var checkName=String(model.markers()[thisVenue].title).toLowerCase();
-				var matchFound=checkName.includes(findThis);
-				if(!matchFound){
-					model.markers()[thisVenue].setVisible(false);
-					model.markers()[thisVenue].isVisible(false);
-				}else{
-					console.log('matched: '+checkName);
-					model.markers()[thisVenue].setVisible(true);
-					model.markers()[thisVenue].isVisible(true);
-					resultFound=true;		
+				if(model.markers()[thisVenue].isVisible()){
+					var checkName=String(model.markers()[thisVenue].title).toLowerCase();
+					var matchFound=checkName.includes(findThis);
+					if(!matchFound){
+						model.markers()[thisVenue].setVisible(false);
+						model.markers()[thisVenue].isVisible(false);
+					}else{
+						model.markers()[thisVenue].setVisible(true);
+						model.markers()[thisVenue].isVisible(true);
+						resultFound=true;		
+					};
 				};
 			};
 			if(!resultFound){
