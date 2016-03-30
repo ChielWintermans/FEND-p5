@@ -1,11 +1,13 @@
 // global variables
 var map;
-var infoWindow;
+var infowindow;
 var results=[];
 var FsResults=[];
 var foodList=['Modern European', 'Desserts', 'German', 'French', 'Cafes', 'Do-It-Yourself Food', 'Coffee & Tea', 'Fondue', 'Caribbean', 'Ice Cream', 'Deli / Bodega', 'Hotel Bar', 'Coffee Shop', 'Restaurant', 'Café', 'Brewery', 'Bagels', 'Sandwiches', 'Fish & Chips', 'Food Stands', 'Dive Bars', 'Food'];
 var activeList=['Active Life', 'Gyms', 'Skate Park', 'Climbing Gym', 'Gym / Fitness', 'Dance Studio'];
 var museumList=['Art Museum', 'Science Museum', 'Art Gallery'];
+
+// function to create venue objects
 var venue=function(data){
 	this.dataSrc=ko.observable(data.src);
 	this.name=ko.observable(data.name);
@@ -32,15 +34,16 @@ function Model(){
 	var self=this;
 	//Set the home location coordinates to initialize the map here
 	self.home=[51.447581,5.457728];
-	//Create an empty array to store a list of map markers
+	//Create an observable array to store a list of map markers
 	self.markers=ko.observableArray([]);
+	//Create an observable array to store a list of venue objects
 	self.venueList=ko.observableArray([]);
 };
 var model =new Model();
 
 function ViewModel(){
 	var self = this;
-	self.windowOpen=ko.observable(false);
+	// variable to store the selected venue
 	self.currentVenue=ko.observable(model.venueList()[0]);
 
 	// show map
@@ -62,13 +65,11 @@ function ViewModel(){
   				]
   			}
 		]);
-	};
-	initMap();
-
+	}();
+	
 	// build list of Yelp venues & set markers
 	fillList=function(){
 	    for(i=0;i<results.length;i++){
-	    	//console.log(results[i]);
 	    	if(results[i].location.coordinate && results[i].location.geo_accuracy>7/* && results[i].phone*/){
 	    		var venueData={
 	    			src: 'yelp',
@@ -107,28 +108,30 @@ function ViewModel(){
 	  			google.maps.event.addListener(marker, 'click', (function(marker, i) {
 	    			return function(){
          				checkIndex(marker);
-		    			windowOpen=true;
 		    			infowindow.setContent(document.getElementById('info-cntt-holder'));
         				infowindow.open(map, marker);
         				// animate the marker on click
         				marker.setAnimation(google.maps.Animation.BOUNCE);
-  						setTimeout(function(){ marker.setAnimation(null); }, 1400);   				
+        				setTimeout(function(){ marker.setAnimation(null); }, 1400);   
+        				// add listener to close the infowindow if the corresponding marker is hidden
+        				google.maps.event.addListenerOnce( marker, "visible_changed", function(){
+        					infowindow.close();
+    					});
         			};
     			})(marker, i));
 				// add listener for infowindow close click so ko bindings stay preserved.
 				google.maps.event.addListener(infowindow, 'closeclick', closeInfoWindow);
 	    	};
 	    };
-	    //console.log(model.markers());
 		similars();
 	};
 
 	// build list of Foursquare venues & set markers 
 	fillListMore=function(){
+
 		var lastI=model.venueList().length;
 		for(i=lastI;(i-lastI)<FsResults.length;i++){
 			newI=i-lastI;
-			//console.log(FsResults[i]);
 			var FsName=FsResults[newI].venue.name;
    			//if(FsResults[newI].venue.contact.phone){
        			var venueData={
@@ -157,12 +160,15 @@ function ViewModel(){
 				google.maps.event.addListener(marker, 'click', (function(marker, i){
     				return function(){
     					checkIndex(marker);
-	   					windowOpen=true;
 	   					infowindow.setContent(document.getElementById('info-cntt-holder'));
        					infowindow.open(map, marker);
        					// animate the marker on click
        					marker.setAnimation(google.maps.Animation.BOUNCE);
-						setTimeout(function(){ marker.setAnimation(null); }, 1400);   				
+						setTimeout(function(){ marker.setAnimation(null); }, 1400);
+						// add listener to close the infowindow if the corresponding marker is hidden
+						google.maps.event.addListenerOnce( marker, "visible_changed", function(){
+        					infowindow.close();
+    					});				
        				};
    				})(marker, i));
    				// add listener for infowindow close click so ko bindings stay preserved.
@@ -172,7 +178,6 @@ function ViewModel(){
 	};
 
 	// get foursquare data
-
 	var FsConnector=(function(){
 
 		// Foursquare tokens
@@ -185,7 +190,8 @@ function ViewModel(){
 		   		type: requestPayload.method,
 		   	}).done(function(data){
 		   		//console.log(data);
-		   		FsResults = FsResults.concat(data.response.groups[0].items);
+		   		FsResults=FsResults.concat(data.response.groups[0].items);
+		   		//FsLoaded=true;
 		   	}).fail(function(jqxhr, textStatus, error) {
 		      	// Let empty results set indicate problem with load.
 		      	// If there is no callback - there are no UI dependencies
@@ -209,7 +215,6 @@ function ViewModel(){
   	FsConnector.fetchDataFromFs();
 
 	// get yelp data
-
 	var yelpConnector = (function() {
 		var oauth = OAuth({
 			consumer: {
@@ -268,7 +273,7 @@ function ViewModel(){
 	})();
 	yelpConnector.fetchDataFromYelp();
 	
-	// function to set venue category & marker img
+	// set venue category & marker img
 	function setCategory(data, target){
 		var foundFood=foodList.some(function(details){
 			return details===data;
@@ -294,7 +299,7 @@ function ViewModel(){
 		};
 	};
 
-	// function to match venueList data with marker data
+	// match venueList data with marker data
 	function checkIndex(data){
 		var foundId=model.venueList().findIndex(function(details){
 			return details.name()===data.title;
@@ -311,13 +316,13 @@ function ViewModel(){
 		});
 	};
 
-	// function to preserve ko bindings to infowindow DOM element
+	// preserve ko bindings to infowindow DOM element
 	function closeInfoWindow(){
-		self.windowOpen=false;
     	document.getElementById('cntt-container').appendChild(infowindow.getContent());
+
 	};
 
-	// function to match yelp venues to foursquare venues based on name even if they don't match 100%
+	// match yelp venues to foursquare venues based on name even if they don't match 100%
 	similars=function(){
 		for(var item in model.venueList()){
 			var thisVenue=model.venueList()[item];
@@ -334,13 +339,11 @@ function ViewModel(){
 					};
 					ignoreString('Restaurant');
 					ignoreString('Het Veem');
-//					console.log(FsResults.length);
 					for(i=0;i<(FsName.length-4);i++){
 						var shortFsName=FsName.slice(i, i+5);
 						var strFound=venueName.includes(shortFsName);
 						if(strFound){
 							// only add additional data from foursquare to the venue object
-							//console.log('appending to '+venueName);
 							appendFsData(thisVenue, item2);
 							FsResults.splice(item2,1);
 							thisVenue.checked=true;
@@ -369,6 +372,9 @@ function ViewModel(){
 
 	// filter results by category show this category
 	showThis=function(data){
+		if(infowindow){
+			closeInfoWindow();
+		};
 		resetMarkers();
 		for(var venueDetails in model.venueList()){
 			var venueCat=model.venueList()[venueDetails].category();
