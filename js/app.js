@@ -38,6 +38,7 @@ function Model(){
 	self.markers=ko.observableArray([]);
 	//Create an observable array to store a list of venue objects
 	self.venueList=ko.observableArray([]);
+	self.currentVenueName=ko.observable('');
 };
 var model =new Model();
 
@@ -300,12 +301,15 @@ function ViewModel(){
 
 	// match venueList data with marker data
 	function checkIndex(data){
+		model.currentVenueName('');
 		var foundId=model.venueList().findIndex(function(details){
 			return details.name()===data.title;
 		});
 		if(foundId>-1){
 	    	self.currentVenue(model.venueList()[foundId]);
+	    	model.currentVenueName(model.venueList()[foundId].name());
 	    };
+
 	};
 
 	// trigger a marker click event on list click
@@ -373,7 +377,6 @@ function ViewModel(){
 	showThis=function(data){
 		resetErrMsg();
 		resetMarkers();
-		map.panTo(new google.maps.LatLng(model.home[0],model.home[1]));
 		for(var venueDetails in model.venueList()){
 			var venueCat=model.venueList()[venueDetails].category();
 			if(data==='Other'){
@@ -410,6 +413,8 @@ function ViewModel(){
 
 	// set all markers to visible
 	resetMarkers=function(){
+		map.panTo(new google.maps.LatLng(model.home[0],model.home[1]));
+		model.currentVenueName('');
 		for(var vis in model.markers()){
 			model.markers()[vis].setVisible(true);
 			model.markers()[vis].isVisible(true);
