@@ -51,10 +51,6 @@ initMap=function(){
   		}
 	]);
 };
-// maps api errorhandling
-errorHandling=function(){
-	viewmodel.errorMessage="Can't load the map and app";
-};
 
 function Model(){
 	var self=this;
@@ -73,7 +69,12 @@ function ViewModel(){
 	// variable to store the selected venue
 	self.currentVenue=ko.observable(model.venueList()[0]);
 	self.searchTerm=ko.observable('');
-	self.errorMessage=ko.observable();
+	self.errorMessage=ko.observable('');
+
+	// maps api errorhandling
+	errorHandling=function(){
+		self.errorMessage("Can't load the map and app");
+	};
 	
 	// build list of Yelp venues & set markers
 	fillList=function(){
@@ -199,7 +200,7 @@ function ViewModel(){
 		    }).fail(function(jqxhr, textStatus, error) {
 		      	// Let empty results set indicate problem with load.
 		      	// If there is no callback - there are no UI dependencies
-		      	self.errorMessage("Failed to load: " + textStatus + ", " + error)
+		      	self.errorMessage("Failed to load: " + textStatus + ", " + error);
 		   	}).always(function() {
 		   		typeof callback === 'function' && callback(FsResults);
 		   	});
@@ -252,7 +253,7 @@ function ViewModel(){
 	   		}).fail(function(jqxhr, textStatus, error) {
 	      	// Let empty results set indicate problem with load.
 	      	// If there is no callback - there are no UI dependencies
-	      		self.errorMessage("Failed to load: " + textStatus + ", " + error)
+	      		self.errorMessage("Failed to load: " + textStatus + ", " + error);
 	    	}).always(function() {
 	      		typeof callback === 'function' && callback(results);
 	    	});
@@ -318,7 +319,7 @@ function ViewModel(){
 	// trigger a marker click event on list click
  	selectFromList=function(venue){
  		self.currentVenue(venue);
- 		model.currentVenueName(venue.name())
+ 		model.currentVenueName(venue.name());
  		var foundMark=model.markers().findIndex(function(details){
  			return details.title===model.currentVenueName();
  		});
@@ -326,7 +327,7 @@ function ViewModel(){
  			google.maps.event.trigger(model.markers()[foundMark], 'click', {
 				latLng: model.markers()[foundMark]
 			});
-  		};
+  		}
   		drawer.classList.remove('open');
 	};
 
@@ -418,7 +419,7 @@ function ViewModel(){
 					}
 				}
 			}
-		})
+		});
 	};
 
 	// set all markers to visible
@@ -429,11 +430,11 @@ function ViewModel(){
 		model.currentVenueName('');
 		model.markers().forEach(function(val){
 			val.setVisible(true);
-		})
+		});
 		model.venueList().forEach(function(val){
 			val.isVisible(true);
-		})
-		self.searchTerm('')
+		});
+		self.searchTerm('');
 	};
 
 	// search for..
@@ -454,7 +455,7 @@ function ViewModel(){
 						val.setVisible(true);
 					}
 				}
-			})
+			});
 			model.venueList().forEach(function(val){
 				if(val.isVisible()){
 					var checkName=String(val.name().toLowerCase());
@@ -466,7 +467,7 @@ function ViewModel(){
 						resultFound=true;	
 					}
 				}
-			})
+			});
 			if(!resultFound){
 				self.errorMessage('no matches found');
 				resetMarkers();
@@ -478,7 +479,7 @@ function ViewModel(){
 	function resetErrMsg(){
 		self.errorMessage('');
 		self.searchTerm('');
-	};
+	}
 	// open the hamburgermenu when the icon is clicked
 	hmbrgrMenu=function(){
 		var menu = document.querySelector('#menu');
