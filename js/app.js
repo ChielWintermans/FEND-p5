@@ -28,6 +28,32 @@ var venue=function(data){
 	this.fsTips=ko.observable(data.fsTips);
 	this.fsTipSnippet=ko.observable(data.fsTipSnippet);
 	this.fsTipLink=ko.observable(data.fsTipLink);
+	this.isVisible=ko.observable(data.isVisible);
+};
+
+// initialise map
+initMap=function(){
+   	var homeLl=new google.maps.LatLng(model.home[0],model.home[1]);
+	var mapOptions={
+   		zoom: 16,
+   		center: homeLl,
+   		mapTypeId: google.maps.MapTypeId.ROADMAP
+	};
+	map=new google.maps.Map(document.getElementById('mapDiv'),mapOptions);
+	// set visibility for google's default POI's to 'off'
+	map.set('styles', [
+		{
+			featureType: 'poi',
+			elementType: 'all',
+			stylers: [
+				{ visibility: 'off' }
+  			]
+  		}
+	]);
+};
+// maps api errorhandling
+errorHandling=function(){
+	viewmodel.errorMessage="Can't load the map and app";
 };
 
 function Model(){
@@ -39,7 +65,7 @@ function Model(){
 	//Create an observable array to store a list of venue objects
 	self.venueList=ko.observableArray([]);
 	self.currentVenueName=ko.observable('');
-};
+}
 var model =new Model();
 
 function ViewModel(){
@@ -48,27 +74,6 @@ function ViewModel(){
 	self.currentVenue=ko.observable(model.venueList()[0]);
 	self.searchTerm=ko.observable('');
 	self.errorMessage=ko.observable();
-
-	// show map
-	initMap=function(){
-	   	var homeLl=new google.maps.LatLng(model.home[0],model.home[1]);
-		var mapOptions={
-	   		zoom: 16,
-	   		center: homeLl,
-	   		mapTypeId: google.maps.MapTypeId.ROADMAP
-		};
-		map=new google.maps.Map(document.getElementById('mapDiv'),mapOptions);
-		// set visibility for google's default POI's to 'off'
-		map.set('styles', [
-  			{
-  				featureType: 'poi',
-  				elementType: 'all',
-  				stylers: [
-    				{ visibility: 'off' }
-  				]
-  			}
-		]);
-	}();
 	
 	// build list of Yelp venues & set markers
 	fillList=function(){
@@ -81,17 +86,18 @@ function ViewModel(){
 					location: results[i].location,
 					image_url: results[i].image_url,
 					ySnippet_text: results[i].snippet_text,
-					yUrl: results[i].url
+					yUrl: results[i].url,
+					isVisible: true
 	    		};
 	    		if(!results[i].image_url){
 	    			venueData.image_url='img/default.jpg';
-	    		};
+	    		}
 	    		if(results[i].review_count>0){
 	    			venueData.yRating=results[i].rating;
 	    			venueData.yRatingImg=results[i].rating_img_url;
 	    			venueData.yReview_count=results[i].review_count;
 
-	    		};
+	    		}
 	    		// set the category & corresponding marker img
 	    		setCategory(String(results[i].categories[0][0]), venueData);
 	    		var thisIcon=venueData.icon;
@@ -102,7 +108,6 @@ function ViewModel(){
 	            	map:map,
 	            	icon: thisIcon,
 	            	animation: google.maps.Animation.DROP,
-	            	isVisible: ko.observable(true)
 	            });
 	        	marker.setMap(map);	 
 	    		model.markers.push(marker);
@@ -123,8 +128,8 @@ function ViewModel(){
     			})(marker, i));
 				// add listener for infowindow close click so ko bindings stay preserved.
 				google.maps.event.addListener(infowindow, 'closeclick', closeInfoWindow);
-	    	};
-	    };
+	    	}
+	    }
 		similars();
 	};
 
@@ -140,7 +145,8 @@ function ViewModel(){
 					name: FsResults[newI].venue.name,
 					phone: FsResults[newI].venue.contact.phone,
 					location: {display_address: [FsResults[newI].venue.location.address]},
-					image_url: FsResults[newI].venue.photos.groups[0].items[0].prefix+'100x100'+FsResults[newI].venue.photos.groups[0].items[0].suffix				
+					image_url: FsResults[newI].venue.photos.groups[0].items[0].prefix+'100x100'+FsResults[newI].venue.photos.groups[0].items[0].suffix,
+					isVisible: true
 				};
 				appendFsData(venueData, newI);
 				setCategory(FsResults[newI].venue.categories[0].shortName, venueData);
@@ -152,7 +158,6 @@ function ViewModel(){
 		   			map:map,
 		   			icon: thisIcon,
 		   			animation: google.maps.Animation.DROP,
-	            	isVisible: ko.observable(true)
 				});
 				marker.setMap(map);
 				model.markers.push(marker);
@@ -173,8 +178,8 @@ function ViewModel(){
    				})(marker, i));
    				// add listener for infowindow close click so ko bindings stay preserved.
 				google.maps.event.addListener(infowindow, 'closeclick', closeInfoWindow);
-	        };
-		};
+	        }
+		}
 	};
 
 	// get foursquare data
@@ -191,11 +196,10 @@ function ViewModel(){
 		   	}).done(function(data){
 		   		//console.log(data);
 		   		FsResults=FsResults.concat(data.response.groups[0].items);
-		   		//FsLoaded=true;
-		   	}).fail(function(jqxhr, textStatus, error) {
+		    }).fail(function(jqxhr, textStatus, error) {
 		      	// Let empty results set indicate problem with load.
 		      	// If there is no callback - there are no UI dependencies
-		   		console.log("Failed to load: " + textStatus + ", " + error);
+		      	self.errorMessage("Failed to load: " + textStatus + ", " + error)
 		   	}).always(function() {
 		   		typeof callback === 'function' && callback(FsResults);
 		   	});
@@ -243,12 +247,12 @@ function ViewModel(){
         			requestPayload.data.offset = offset;
         			sendSearchRequest(requestPayload, callback);
         			return;
-      			};
+      			}
 	      		fillList();
 	   		}).fail(function(jqxhr, textStatus, error) {
 	      	// Let empty results set indicate problem with load.
 	      	// If there is no callback - there are no UI dependencies
-	      		console.log("Failed to load: " + textStatus + ", " + error);
+	      		self.errorMessage("Failed to load: " + textStatus + ", " + error)
 	    	}).always(function() {
 	      		typeof callback === 'function' && callback(results);
 	    	});
@@ -296,8 +300,8 @@ function ViewModel(){
 		}else{
 			target.icon='img/default.png';
 			target.category=data;
-		};
-	};
+		}
+	}
 
 	// match venueList data with marker data
 	function checkIndex(data){
@@ -308,38 +312,44 @@ function ViewModel(){
 		if(foundId>-1){
 	    	self.currentVenue(model.venueList()[foundId]);
 	    	model.currentVenueName(model.venueList()[foundId].name());
-	    };
-
-	};
+	    }
+	}
 
 	// trigger a marker click event on list click
  	selectFromList=function(venue){
-  		google.maps.event.trigger(venue, 'click', {
-			latLng: venue
-		});
+ 		self.currentVenue(venue);
+ 		model.currentVenueName(venue.name())
+ 		var foundMark=model.markers().findIndex(function(details){
+ 			return details.title===model.currentVenueName();
+ 		});
+ 		if(foundMark>-1){
+ 			google.maps.event.trigger(model.markers()[foundMark], 'click', {
+				latLng: model.markers()[foundMark]
+			});
+  		};
+  		drawer.classList.remove('open');
 	};
 
 	// preserve ko bindings to infowindow DOM element
 	function closeInfoWindow(){
 		infowindow.close();
 		document.getElementById('cntt-container').appendChild(infowindow.getContent());
-	};
+	}
 
 	// match yelp venues to foursquare venues based on name even if they don't match 100%
 	similars=function(){
-		for(var item in model.venueList()){
-			var thisVenue=model.venueList()[item];
-			if(thisVenue.dataSrc()==='yelp'){
-				var venueName=String(thisVenue.name());
-				for(var item2 in FsResults){
-					var FsName=String(FsResults[item2].venue.name);
+		model.venueList().forEach(function(val){
+			if(val.dataSrc()==='yelp'){
+				var venueName=String(val.name());
+				for(iFs=0;iFs<FsResults.length;iFs++){
+					var FsName=String(FsResults[iFs].venue.name);
 					// helper function to prevent detection of false doubles
 					function ignoreString(data){
 						var ignoreThis=FsName.includes(data);
 						if(ignoreThis){
 							FsName=FsName.replace(data, '');
-						};
-					};
+						}
+					}
 					ignoreString('Restaurant');
 					ignoreString('Het Veem');
 					for(i=0;i<(FsName.length-4);i++){
@@ -347,22 +357,22 @@ function ViewModel(){
 						var strFound=venueName.includes(shortFsName);
 						if(strFound){
 							// only add additional data from foursquare to the venue object
-							appendFsData(thisVenue, item2);
-							FsResults.splice(item2,1);
-							thisVenue.checked=true;
+							appendFsData(val, iFs);
+							FsResults.splice(iFs,1);
+							val.checked=true;
 							break;
-						};
-					};
-				};
-			};	
-		};
+						}
+					}
+				}
+			}
+		});
 		fillListMore();
 	};
 
 	function appendFsData(venueObject, fsId){
 		if(!venueObject.img){
 			venueObject.img=FsResults[fsId].venue.photos.groups[0].items[0].prefix+'100x100'+FsResults[fsId].venue.photos.groups[0].items[0].suffix;
-		};
+		}
 		venueObject.webUrl=FsResults[fsId].venue.url;
 		venueObject.fsRating=FsResults[fsId].venue.rating;
 		venueObject.fsLink='http://foursquare.com/v/'+FsResults[fsId].venue.id;
@@ -370,83 +380,98 @@ function ViewModel(){
 			venueObject.fsTips=FsResults[fsId].tips.length;
 			venueObject.fsTipSnippet=FsResults[fsId].tips[0].text;
 			venueObject.fsTipLink=FsResults[fsId].tips[0].canonicalUrl;
-		};
-	};
+		}
+	}
 
 	// filter results by category show this category
 	showThis=function(data){
 		resetErrMsg();
 		resetMarkers();
-		for(var venueDetails in model.venueList()){
-			var venueCat=model.venueList()[venueDetails].category();
+		model.venueList().forEach(function(val){
+			var venueCat=val.category();
 			if(data==='Other'){
 				if((venueCat==='Food & drink')||(venueCat==='Active Life')||(venueCat==='Museums')){
-					var thisPlace=model.venueList()[venueDetails].name();
+					var thisPlace=val.name();
 					var thisPlaceMarker=model.markers().findIndex(function(details){
 						return details.title===thisPlace;
 					});
 					if(thisPlaceMarker>-1){
 						model.markers()[thisPlaceMarker].setVisible(false);
-						model.markers()[thisPlaceMarker].isVisible(false);
+						val.isVisible(false);
 					}else{
 						model.markers()[thisPlace].setVisible(true);
-						model.markers()[thisPlace].isVisible(true);
-					};
-				};
+						val.isVisible(true);
+					}
+				}
 			}else{
 				if(venueCat!=data){
-					var thisPlace=model.venueList()[venueDetails].name();
+					var thisPlace=val.name();
 					var thisPlaceMarker=model.markers().findIndex(function(details){
 						return details.title===thisPlace;
 					});
 					if(thisPlaceMarker>-1){
 						model.markers()[thisPlaceMarker].setVisible(false);
-						model.markers()[thisPlaceMarker].isVisible(false);
+						val.isVisible(false);
 					}else{
 						model.markers()[thisPlaceMarker].setVisible(true);
-						model.markers()[thisPlaceMarker].isVisible(true);
-					};
-				};
-			};
-		};
+						val.isVisible(true);
+					}
+				}
+			}
+		})
 	};
 
 	// set all markers to visible
 	resetMarkers=function(){
-		map.panTo(new google.maps.LatLng(model.home[0],model.home[1]));
+		if(map){
+			map.panTo(new google.maps.LatLng(model.home[0],model.home[1]));
+		}
 		model.currentVenueName('');
-		for(var vis in model.markers()){
-			model.markers()[vis].setVisible(true);
-			model.markers()[vis].isVisible(true);
-		};
+		model.markers().forEach(function(val){
+			val.setVisible(true);
+		})
+		model.venueList().forEach(function(val){
+			val.isVisible(true);
+		})
+		self.searchTerm('')
 	};
 
 	// search for..
 	searchVenues=function(){
+		self.errorMessage('');
 		var findThis=String(self.searchTerm()).toLowerCase();
 		if(findThis===''){
 			resetMarkers();
 		}else{
 			var resultFound=false;
-			for(var thisVenue in model.markers()){
-				if(model.markers()[thisVenue].isVisible()){
-					var checkName=String(model.markers()[thisVenue].title).toLowerCase();
+			model.markers().forEach(function(val){
+				if(val.visible){
+					var checkName=String(val.title).toLowerCase();
 					var matchFound=checkName.includes(findThis);
 					if(!matchFound){
-						model.markers()[thisVenue].setVisible(false);
-						model.markers()[thisVenue].isVisible(false);
+						val.setVisible(false);
 					}else{
-						model.markers()[thisVenue].setVisible(true);
-						model.markers()[thisVenue].isVisible(true);
-						resultFound=true;		
-					};
-				};
-			};
+						val.setVisible(true);
+					}
+				}
+			})
+			model.venueList().forEach(function(val){
+				if(val.isVisible()){
+					var checkName=String(val.name().toLowerCase());
+					var matchFound=checkName.includes(findThis);
+					if(!matchFound){
+						val.isVisible(false);
+					}else{
+						val.isVisible(true);
+						resultFound=true;	
+					}
+				}
+			})
 			if(!resultFound){
 				self.errorMessage('no matches found');
 				resetMarkers();
-			};
-		};
+			}
+		}
 	};
 
 	// clear the error msg & search fields
@@ -454,5 +479,20 @@ function ViewModel(){
 		self.errorMessage('');
 		self.searchTerm('');
 	};
-};
+	// open the hamburgermenu when the icon is clicked
+	hmbrgrMenu=function(){
+		var menu = document.querySelector('#menu');
+	      var main = document.querySelector('.container');
+	      var drawer = document.querySelector('.nav');
+
+	      menu.addEventListener('click', function(e) {
+	        drawer.classList.toggle('open');
+	        e.stopPropagation();
+	      });
+	      main.addEventListener('click', function() {
+	        drawer.classList.remove('open');
+	      });
+	  }();
+
+}
 ko.applyBindings(new ViewModel());

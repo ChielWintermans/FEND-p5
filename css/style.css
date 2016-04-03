@@ -1,146 +1,159 @@
-*{
+* {
     -webkit-box-sizing: border-box;
     -moz-box-sizing: border-box;
     -ms-box-sizing: border-box;
     box-sizing: border-box;
 }
-body{
-    font-family: Telex, sans-serif;
+body {
+    font-family: "Telex", sans-serif;
     font-size: 15px;
 }
-h1{
-    font-family: 'Aldrich', sans-serif;
-    font-size: 40px;
+h1 {
+    font-family: "Aldrich", sans-serif;
+    font-size: 33px;
 }
-h2{
-    font-family: 'Aldrich', sans-serif;
+h2 {
+    font-family: "Aldrich", sans-serif;
     font-size: 17px;
 }
-.container{
+main {
+    max-width: 100%;
+}
+.container {
     display: flex;
     display: -webkit-flex;
     flex-wrap: wrap;
     width: 100%;
 }
-#img-header{
+.img-header {
     width: 100%;
     height: 100px;
     background-color: #d61b0c;
 }
-#img-head-left{
+.img-head-left {
     width: 100px;
     height: 100px;
     float: left;
+    background-image: url("Ehv_100x100a.jpg");
+    
+
 }
-#img-head-right{
+.img-head-right {
     width: 100px;
     height: 100px;
     float: right;
+    background-image: url("StrijpS_100x100a.jpg");
+    
 }
-#img-head-txt{
+.img-head-txt {
     width: 100%;
     height: 100px;
     color: white;
     text-align: center;
 }
-#filter-holder{
+.filter-holder {
     width: 100%;
     padding-bottom: 10px;
     padding-top: 10px;
 }
-#form-holder{
+.form-holder {
     width: 25%;
 }
-#bttn-holder{
+.bttn-holder {
     width: 75%;
     float: right;
 }
-#errorMsg{
+.small-bttn {
+    display: none;
+}
+.errorMsg {
     width: 100%;
     height: 25px;
 }
-#mapDiv{
+#mapDiv {
     width: 70%;
     height: 500px;
     float: right;
 }
-#listDiv{
+.listDiv {
     width: 25%;
     padding-right: 25px;
 }
-.selectedVenue{
+.selectedVenue {
     color: white;
     background-color: #d61b0c;
 }
-#cntt-container{
+#cntt-container {
     display: none;
 }
-#info-cntt-holder{
+#info-cntt-holder {
     display: flex;
     display: -webkit-flex;
     flex-wrap: wrap;
     width: 350px;
 }
-#cntt-header{
+.cntt-header {
     width: 100%;
     height:55px;
     background-color: #d61b0c;
 }
-#cntt-head-img-left{
+.cntt-head-img-left {
     width: 45px;
     height: 55px;
     float: left;
+    background-image: url("Ehv_45x55a.jpg");
 }
-#cntt-head-img-right{
+.cntt-head-img-right {
     width: 45px;
     height: 55px;
     float: right;
+    background-image: url("StrijpS_45x55a.jpg");
 }
-#cntt-head-txt{
+.cntt-head-txt {
     width: 260px;
     text-align: center;
     color: white;
     float: left;
 }
-#cntt-body{
+.cntt-body {
     width: 100%;
     padding-top: 7px;
 }
-#cntt-img{
+.cntt-img {
     width: 100px;
     height: 100px;
     float: left;
 }
-#cntt-details{
+.cntt-details {
     width: 250px;
     float: right;
 }
-.cntt-pair{
+.cntt-pair {
     width: 100%;
     clear: both;
 }
-.cntt-key{
-    width: 40%;
+.cntt-key {
+    width: 30%;
     float: left;
     padding-left: 7px;
 }
-.cntt-value{
+.cntt-value {
     width: 60%;
     padding-left: 7px;
     float: left;
 }
-#cntt-review-holder{
+.cntt-review-holder {
     width: 100%;
     padding-top: 10px;
 }
-.cntt-review-txt{
+.cntt-review-txt {
     width: 100%;
 }
-.scrollFix{
+.scrollFix {
     line-height: 1.35;
     overflow: hidden;
 }
-.place-rating{
+.place-rating {
     color: white;
     background-color: #223fdb;
     height: 8%;
@@ -148,4 +161,145 @@ h2{
     text-align: center;
     border-radius: 10%;
     float: left;
+}
+.header__menu {
+    /*display: none;*/
+}
+.hmbrgr {
+    display: none;
+}
+.small {
+    display: none;
+}
+#drawer {
+    display: none;
+}
+
+/* styles for mobile portrait viewport */
+@media only screen and (max-width: 449px) {
+    body {
+        font-size: 12px;
+    }
+    h1 {
+        font-size: 18px;
+    }
+    h2 {
+        font-size: 14px;
+        vertical-align: middle;
+    }
+    .img-header {
+        height: 55px;
+    }
+    .img-head-left {
+        width: 45px;
+        height: 55px;
+        background-image: url("Ehv_45x55a.jpg");
+    }
+    .img-head-right {
+        width: 45px;
+        height: 55px;
+        background-image: url("StrijpS_45x55a.jpg");
+    }
+   .hmbrgr {
+        display: block;
+        width: 100%;
+        height: 56px;
+    }
+    #drawer {
+        display: block;
+    }
+    #info-cntt-holder {
+       display: flex;
+        display: -webkit-flex;
+        flex-wrap: wrap;
+        width: 175px;
+    }
+    .cntt-head-txt {
+        width: 100%;
+        text-align: center;
+        color: white;
+    }
+    .cntt-head-img-left{
+        display:none;
+    }
+    .cntt-head-img-right{
+        display:none;
+    }
+    .cntt-img {
+        width: 100%;
+        height: 100px;
+    }
+    .cntt-details {
+        width: 100%;
+    }
+    .cntt-value {
+        float: right;
+    }
+    .nav {
+        z-index: 10;
+        height: 100%;
+        background-color: #fff;
+        position: absolute;
+        transform: translate(495px, 45px);
+        -webkit-transform: translate(-495px, 45px);
+        transition: transform 0.3s ease;
+    }
+
+    .header__menu {
+        display: inline-block;
+        position: absolute;
+        padding-left: 5px;
+        padding-top: 12px;
+    }
+    .header__menu svg {
+    width: 32px;
+    fill: #E0E0E0;
+  }
+    .listDiv {
+        display: none;
+    }
+    #mapDiv {
+        width: 100%;
+    }
+    .nav.open {
+    transform: translate(370px, 45px);
+    -webkit-transform: translate(-370px, 45px);
+  }
+  .venueImg {
+    display: block;
+    margin: 0 auto;
+  }
+}
+
+/* styles for tablet or mobile landscape viewport */
+@media only screen and (min-width: 450px) and (max-width: 699px) {
+    body {
+        font-size: 14px;
+    }
+    h1 {
+        font-size: 28px;
+    }
+    h2 {
+        font-size: 16px;
+        vertical-align: middle;
+    }
+}
+
+@media only screen and (max-width: 699px) {    
+    .small-bttn {
+        display: block;
+        width: 100%;  
+        text-align: center;
+        padding-bottom: 4px;
+    }
+    .big {
+        display: none;   
+    }
+    .small {
+    display: block;
+    }
+    .form-holder {
+        width: 100%;
+        text-align: center;
+    }
 }

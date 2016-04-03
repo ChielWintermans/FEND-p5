@@ -4,68 +4,84 @@
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
 	<meta name="viewport" content="width=device-width, initial-scale=1">
-    <link href='https://fonts.googleapis.com/css?family=Telex|Aldrich' rel='stylesheet' type='text/css'>
-    <link href='css/style.css' rel='stylesheet' type='text/css'>
+    <link href="https://fonts.googleapis.com/css?family=Telex|Aldrich" rel="stylesheet">
+    <link href="css/style.css" rel="stylesheet">
     <link rel="shortcut icon" type="image/x-icon" href="favicon.ico">
     <title>Strijp-S Neighbourhood Map</title>
 </head>
 <body>
 	<div class="container">
-        <div id="img-header">
-            <div id="img-head-right">
-                <img src="img/StrijpS_100x100a.jpg">
+        <div class="img-header">
+            <div class="img-head-right">
             </div>
-            <div id="img-head-left">
-                <img src="img/Ehv_100x100a.jpg">
+            <div class="img-head-left">
             </div>
-            <div id="img-head-txt">
+            <div class="img-head-txt">
                 <h1>Strijp-S Neighbourhood Map</h1>    
             </div>
         </div>
-        <div id="filter-holder">
-            <div id="bttn-holder">
-                Filter by category: 
+        <div class="filter-holder">
+            <div class="bttn-holder big">
+                Filter by category:
                 <button data-bind="click: showThis('Food & drink')">Food</button>
                 <button data-bind="click: showThis('Active Life')">Active</button>
                 <button data-bind="click: showThis('Museums')">Museums</button>
                 <button data-bind="click: showThis('Other')">Other</button>
-                <button data-bind="click: resetMarkers">Show All</button>
+                <button data-bind="click: resetMarkers">Show all</button>
             </div>
-            <div id="form-holder">
+            <div class="small-bttn">
+                Filter by category:<br>
+                <button data-bind="click: showThis('Food & drink')">Food</button>
+                <button data-bind="click: showThis('Active Life')">Active</button>
+                <button data-bind="click: showThis('Museums')">Museums</button>
+                <button data-bind="click: showThis('Other')">Other</button>
+                <button data-bind="click: resetMarkers">Show all</button>
+            </div>
+            <div class="form-holder">
                 <form data-bind="submit: searchVenues">
-                    Search: <input type="text" data-bind="value: searchTerm, valueUpdate: 'afterkeydown'">
+                    Search: <input type="text" size="15" data-bind="value: searchTerm, valueUpdate: 'afterkeydown'">
                     <button type="submit" data-bind="enable: searchTerm().length>0">Search</button>
                 </form>
             </div>
         </div>
-        <div id="errorMsg" data-bind="text: errorMessage, visible: errorMessage">test</div>
-		    <ul id="listDiv" data-bind="foreach: model.markers">
-	           <li data-bind="text: title, visible: isVisible, click: selectFromList, css: {selectedVenue: $data.title===model.currentVenueName()}">
+        <div class="hmbrgr">
+            <a id="menu" class="header__menu">
+                <svg viewBox="0 0 24 24">
+                    <path d="M2 6h20v3H2zm0 5h20v3H2zm0 5h20v3H2z"/>
+                </svg>
+            </a>
+        </div>
+        <div class="errorMsg" data-bind="text: errorMessage, visible: errorMessage"></div>
+		    <ul class="listDiv" data-bind="foreach: model.venueList">
+	           <li data-bind="text: name, visible: isVisible, click: selectFromList, css: {selectedVenue: $data.name()===model.currentVenueName()}">
 		    </ul>
-        <div id="mapDiv" class="map"></div>
-	</div>
+            <div id="drawer" class="nav">
+                <ul data-bind="foreach: model.venueList">
+                    <li data-bind="text: name, visible: isVisible, click: selectFromList, css: {selectedVenue: $data.name()===model.currentVenueName()}">
+                </ul>
+            </div>
+            <div id="mapDiv" class="map">
+            </div>
+        </div>
 
     <!-- container for infowindow data -->
     <div id="cntt-container">
         <div id="info-cntt-holder" class="scrollFix" data-bind="with: currentVenue">
-            <div id="cntt-header">
-                <div id="cntt-head-img-right">
-                    <img src="img/StrijpS_45x55a.jpg">
+            <div class="cntt-header">
+                <div class="cntt-head-img-right">
                 </div>
-
-                <div id="cntt-head-img-left">
-                    <img src="img/ehv_45x55a.jpg">
+                <div class="cntt-head-img-left">
                 </div>
-                <div id="cntt-head-txt">
+                <div class="cntt-head-txt">
                     <h2 data-bind="text: name"></h2>
                 </div>
 
              </div>
-            <div id="cntt-body">
-                <div id="cntt-img"  data-bind="visible: img">
-                    <img data-bind="attr: {src: img}">
+            <div class="cntt-body">
+                <div class="cntt-img"  data-bind="visible: img">
+                    <img class="venueImg" data-bind="attr: {src: img}">
                 </div>
-                <div id="cntt-details">
+                <div class="cntt-details">
                     <div class="cntt-pair">
                         <div class="cntt-key">Phone:</div>
                         <div class="cntt-value" data-bind="text: phone"></div>
@@ -84,8 +100,11 @@
                         </div>
                     </div>
                     <div class="cntt-pair" data-bind="visible:yelpReviewCount">
-                        <div class="cntt-key">
+                        <div class="cntt-key big">
                             <a data-bind="attr: {href:yelpUrl}" target="blank">Yelp reviews (<span data-bind="text: yelpReviewCount"></span>)</a>
+                        </div>
+                        <div class="cntt-key small">
+                            <a data-bind="attr: {href:yelpUrl}" target="blank">Yelp</a>
                         </div>
                         <div class="cntt-value">
                             <img data-bind="attr: {src: yelpRatingImg}">
@@ -101,7 +120,7 @@
                     </div>
                 </div>
             </div>
-            <div id="cntt-review-holder" data-bind="visible: yelpSnippet">
+            <div class="cntt-review-holder" data-bind="visible: yelpSnippet">
                 <div class="cntt-review-txt">
                     <a data-bind="attr: {href: yelpUrl}" target="blank">Yelp snippet:</a>
                 </div>
@@ -109,7 +128,7 @@
                     <span data-bind="text: yelpSnippet"></span>
                 </div>
             </div>
-            <div id="cntt-review-holder" data-bind="visible: fsTipSnippet">
+            <div class="cntt-review-holder" data-bind="visible: fsTipSnippet">
                 <div class="cntt-review-txt">
                     <a data-bind="attr: {href: fsTipLink}" target="blank">Foursquare tip:</a>
                 </div>
@@ -121,9 +140,9 @@
     </div>
 	<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
 	<script src="js/lib/knockout-3.2.0.js"></script>
-	<script src="http://maps.google.com/maps/api/js"></script>
     <script src="http://crypto-js.googlecode.com/svn/tags/3.1.2/build/rollups/hmac-sha1.js"></script>
     <script src="http://crypto-js.googlecode.com/svn/tags/3.1.2/build/components/enc-base64-min.js"></script>
 	<script src="js/oauth-1.0a.js"></script>
-	<script src="js/app.js"></script>
+    <script src="js/app.js"></script>
+	<script async defer src="http://maps.google.com/maps/api/js?callback=initMap" onerror="errorHandling()"></script>
 </body>
