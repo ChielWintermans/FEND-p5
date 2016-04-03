@@ -11,6 +11,8 @@ A live version of the site can be seen at www.free4thefree.net/udacity/FEND-p5.
 ### Resources used:
 
 - icons: https://templatic.com/news/100-free-templatic-map-icons/
+- fonts: https://fonts.googleapis.com/
+- favicon: http://www.eindhoven.nl/
 - knockoutjs.com documentation
 - stackoverflow.com
 - developer.mozilla.org mozilla developer reference
